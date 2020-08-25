@@ -9,7 +9,7 @@ As a result, there are a few caveats with the code:
 - The code is very sparsely documented
 - The code is written in TensorFlow 1.X (tested with 1.14)
 
-For a polished, much more user-friendly, TensorFlow 2.x reference implementation of NCPs, we refer to [the main project page](https://github.com/mlech26l/natmachintell_ncp/).
+For a polished, much more user-friendly, TensorFlow 2.x reference implementation of NCPs, we refer to [the main project page](https://github.com/mlech26l/keras-ncp/).
 
 ## Introduction
 
