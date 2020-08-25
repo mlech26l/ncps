@@ -2,7 +2,7 @@
 
 Neural Circuit Policies (NCPs) are designed sparse recurrent neural networks based on the LTC neuron and synapse model loosely inspired by the nervous system of the organism [C. elegans](http://www.wormbook.org/chapters/www_celegansintro/celegansintro.html). 
 This page is a description of the Keras (TensorFlow 2.0 package) reference implementation of NCPs.
-For reproducibility materials of the paper see [the corresponding subpage](https://github.com/mlech26l/natmachintell_ncp/tree/master/reproducibility).
+For reproducibility materials of the paper see [the corresponding subpage](https://github.com/mlech26l/keras-ncp/tree/master/reproducibility/README.md).
 
 ![alt](misc/wirings.png)
 
