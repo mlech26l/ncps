@@ -106,7 +106,7 @@ model = keras.models.Sequential(
         keras.layers.TimeDistributed(keras.layers.MaxPool2D()),
         keras.layers.TimeDistributed(keras.layers.Flatten()),
         keras.layers.TimeDistributed(keras.layers.Dense(32, activation="relu")),
-        keras.layers.RNN(rnn_cell, return_sequences=True),
+        keras.layers.RNN(ncp_cell, return_sequences=True),
         keras.layers.TimeDistributed(keras.layers.Activation("softmax")),
     ]
 )
