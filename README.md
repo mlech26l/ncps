@@ -112,7 +112,7 @@ model = keras.models.Sequential(
 )
 model.compile(
     optimizer=keras.optimizers.Adam(0.01),
-    loss='sparse_categorical_crossentropy,
+    loss='sparse_categorical_crossentropy',
 )
 ```
 
