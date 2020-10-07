@@ -52,7 +52,7 @@ model = keras.Sequential(
     ]
 )
 model.compile(
-    optimizer=keras.optimizers.Adam(0.01), loss='mean_squared_error
+    optimizer=keras.optimizers.Adam(0.01), loss='mean_squared_error'
 )
 
 ```
