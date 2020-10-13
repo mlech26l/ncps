@@ -120,8 +120,7 @@ model.compile(
 @article{lechner2020neural,
   title={Neural Circuit Policies Enabling Auditable Autonomy},
   author={Lechner, Mathias and Hasani, Ramin and Amini, Alexander and Henzinger, Thomas A. and Rus, Daniela and Grosu, Radu},
-  journal={TBA},
+  journal={Nature Machine Intelligence},
   year={2020},
-  publisher={TBA}
 }
 ```
