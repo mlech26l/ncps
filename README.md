@@ -118,9 +118,13 @@ model.compile(
 
 ```bib
 @article{lechner2020neural,
-  title={Neural Circuit Policies Enabling Auditable Autonomy},
-  author={Lechner, Mathias and Hasani, Ramin and Amini, Alexander and Henzinger, Thomas A. and Rus, Daniela and Grosu, Radu},
+  title={Neural circuit policies enabling auditable autonomy},
+  author={Lechner, Mathias and Hasani, Ramin and Amini, Alexander and Henzinger, Thomas A and Rus, Daniela and Grosu, Radu},
   journal={Nature Machine Intelligence},
+  volume={2},
+  number={10},
+  pages={642--652},
   year={2020},
+  publisher={Nature Publishing Group}
 }
 ```
