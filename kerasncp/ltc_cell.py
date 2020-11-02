@@ -216,7 +216,7 @@ class LTCCell(tf.keras.layers.Layer):
         x = sigma * mues
         return tf.nn.sigmoid(x)
 
-    def _ode_solver(self, inputs, state):
+    def _ode_solver(self, inputs, state, elapsed_time):
         v_pre = state
 
         # We can pre-compute the effects of the sensory neurons here
@@ -230,6 +230,9 @@ class LTCCell(tf.keras.layers.Layer):
         # Reduce over dimension 1 (=source sensory neurons)
         w_numerator_sensory = tf.reduce_sum(sensory_rev_activation, axis=1)
         w_denominator_sensory = tf.reduce_sum(sensory_w_activation, axis=1)
+
+        # cm/t is loop invariant
+        cm_t = self._params["cm"] / (elapsed_time / self._ode_unfolds)
 
         # Unfold the mutliply ODE multiple times into one RNN step
         for t in range(self._ode_unfolds):
@@ -245,7 +248,6 @@ class LTCCell(tf.keras.layers.Layer):
             w_numerator = tf.reduce_sum(rev_activation, axis=1) + w_numerator_sensory
             w_denominator = tf.reduce_sum(w_activation, axis=1) + w_denominator_sensory
 
-            cm_t = self._params["cm"] / (1.0 / self._ode_unfolds)
             numerator = (
                 cm_t * v_pre
                 + self._params["gleak"] * self._params["vleak"]
@@ -277,9 +279,16 @@ class LTCCell(tf.keras.layers.Layer):
         return output
 
     def call(self, inputs, states):
+        if isinstance(inputs, (tuple, list)):
+            # Irregularly sampled mode
+            inputs = inputs[0]
+            elapsed_time = inputs[1]
+        else:
+            # Rregularly sampled mode (elapsed time = 1 second)
+            elapsed_time = 1.0
         inputs = self._map_inputs(inputs)
 
-        next_state = self._ode_solver(inputs, states[0])
+        next_state = self._ode_solver(inputs, states[0], elapsed_time)
 
         outputs = self._map_outputs(next_state)
 
