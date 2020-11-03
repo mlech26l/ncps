@@ -69,7 +69,7 @@ We can then fit this model to a generated sine wave, as outlined in the tutorial
 We can also create some more complex NCP wiring architecture. 
 Simply put, an NCP is a 4-layer design vaguely inspired by the wiring of the [C. elegans worm](https://wormwiring.org/). The four layers are sensory, inter, command, and motor layer, which are sparsely connected in a feed-forward fashion. On top of that, the command layer realizes some recurrent connections. As their names already indicate, the sensory represents the input and the motor layer the output of the network.
 
-We can also customize some of the parameter initalization ranges, although the default values should work fine for most cases.
+We can also customize some of the parameter initialization ranges, although the default values should work fine for most cases.
 ```python
 ncp_wiring = kncp.wirings.NCP(
     inter_neurons=20,  # Number of inter neurons
@@ -79,18 +79,18 @@ ncp_wiring = kncp.wirings.NCP(
     inter_fanout=5,  # How many outgoing synapses has each inter neuron
     recurrent_command_synapses=6,  # Now many recurrent synapses are in the
     # command neuron layer
-    motor_fanin=4,  # How many incomming syanpses has each motor neuron
+    motor_fanin=4,  # How many incoming synapses has each motor neuron
 )
 ncp_cell = kncp.LTCCell(
     ncp_wiring,
     initialization_ranges={
-        # Overwrite some of the initalization ranges
+        # Overwrite some of the initialization ranges
         "w": (0.2, 2.0),
     },
 )
 ```
 
-We can then combine the NCP cell with arbitary ```keras.layers```, for instance to build a powerful image sequence classifier:
+We can then combine the NCP cell with arbitrary ```keras.layers```, for instance to build a powerful image sequence classifier:
 
 ```python
 height, width, channels = (78, 200, 3)

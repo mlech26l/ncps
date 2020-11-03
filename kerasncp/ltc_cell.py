@@ -97,6 +97,10 @@ class LTCCell(tf.keras.layers.Layer):
 
     def build(self, input_shape):
 
+        # Check if input_shape is nested tuple/list
+        if isinstance(input_shape[0], (tuple, list)):
+            input_shape = input_shape[0]
+
         self._wiring.build(input_shape)
 
         self._params = {}
@@ -232,9 +236,11 @@ class LTCCell(tf.keras.layers.Layer):
         w_denominator_sensory = tf.reduce_sum(sensory_w_activation, axis=1)
 
         # cm/t is loop invariant
-        cm_t = self._params["cm"] / (elapsed_time / self._ode_unfolds)
+        cm_t = self._params["cm"] / tf.cast(
+            elapsed_time / self._ode_unfolds, dtype=tf.float32
+        )
 
-        # Unfold the mutliply ODE multiple times into one RNN step
+        # Unfold the multiply ODE multiple times into one RNN step
         for t in range(self._ode_unfolds):
             w_activation = self._params["w"] * self._sigmoid(
                 v_pre, self._params["mu"], self._params["sigma"]
@@ -281,10 +287,9 @@ class LTCCell(tf.keras.layers.Layer):
     def call(self, inputs, states):
         if isinstance(inputs, (tuple, list)):
             # Irregularly sampled mode
-            inputs = inputs[0]
-            elapsed_time = inputs[1]
+            inputs, elapsed_time = inputs
         else:
-            # Rregularly sampled mode (elapsed time = 1 second)
+            # Regularly sampled mode (elapsed time = 1 second)
             elapsed_time = 1.0
         inputs = self._map_inputs(inputs)
 
@@ -301,7 +306,7 @@ class LTCCell(tf.keras.layers.Layer):
                 "This is probably because the input shape is not known yet.\n"
                 "Consider calling the model.build(...) method using the shape of the inputs."
             )
-        # Only import networkx if we really need it
+        # Only import networkx package if we really need it
         import networkx as nx
 
         DG = nx.DiGraph()

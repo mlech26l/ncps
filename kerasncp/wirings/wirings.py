@@ -142,10 +142,10 @@ class Random(Wiring):
             for dest in range(self.units):
                 all_synapses.append((src, dest))
 
-        used_syanpses = self._rng.choice(
+        used_synapses = self._rng.choice(
             all_synapses, size=number_of_synapses, replace=False
         )
-        for src, dest in used_syanpses:
+        for src, dest in used_synapses:
             polarity = self._rng.choice([-1, 1, 1])
             self.add_synapse(src, dest, polarity)
 
@@ -159,10 +159,10 @@ class Random(Wiring):
             for dest in range(self.units):
                 all_sensory_synapses.append((src, dest))
 
-        used_sensory_syanpses = self._rng.choice(
+        used_sensory_synapses = self._rng.choice(
             all_sensory_synapses, size=number_of_sensory_synapses, replace=False
         )
-        for src, dest in used_sensory_syanpses:
+        for src, dest in used_sensory_synapses:
             polarity = self._rng.choice([-1, 1, 1])
             self.add_sensory_synapse(src, dest, polarity)
             polarity = self._rng.choice([-1, 1, 1])
