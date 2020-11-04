@@ -101,14 +101,19 @@ class Wiring:
 
 
 class FullyConnected(Wiring):
-    def __init__(self, units, output_dim=None, erev_init_seed=1111):
+    def __init__(
+        self, units, output_dim=None, erev_init_seed=1111, self_connections=True
+    ):
         super(FullyConnected, self).__init__(units)
         if output_dim is None:
             output_dim = units
+        self.self_connections = self_connections
         self.set_output_dim(output_dim)
         self._rng = np.random.default_rng(erev_init_seed)
         for src in range(self.units):
             for dest in range(self.units):
+                if src == dest and not self_connections:
+                    continue
                 polarity = self._rng.choice([-1, 1, 1])
                 self.add_synapse(src, dest, polarity)
 
