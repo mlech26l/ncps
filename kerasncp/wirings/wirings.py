@@ -99,6 +99,26 @@ class Wiring:
             )
         self.sensory_adjacency_matrix[src, dest] = polarity
 
+    def get_config(self):
+        return {
+            "adjacency_matrix": self.adjacency_matrix,
+            "sensory_adjacency_matrix": self.sensory_adjacency_matrix,
+            "input_dim": self.input_dim,
+            "output_dim": self.output_dim,
+            "units": self.units,
+        }
+
+    @classmethod
+    def from_config(cls, config):
+        # There might be a cleaner solution but it will work
+        wiring = Wiring(config["units"])
+        wiring.adjacency_matrix = config["adjacency_matrix"]
+        wiring.sensory_adjacency_matrix = config["sensory_adjacency_matrix"]
+        wiring.input_dim = config["input_dim"]
+        wiring.output_dim = config["output_dim"]
+
+        return wiring
+
 
 class FullyConnected(Wiring):
     def __init__(

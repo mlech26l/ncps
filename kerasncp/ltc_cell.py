@@ -12,8 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from kerasncp import wirings
 import numpy as np
 import tensorflow as tf
+
+
+# Not working inside RNN layer
+# @tf.keras.utils.register_keras_serializable(package="Custom", name="LTCCell")
 
 
 class LTCCell(tf.keras.layers.Layer):
@@ -66,7 +71,7 @@ class LTCCell(tf.keras.layers.Layer):
         self._output_mapping = output_mapping
         self._ode_unfolds = ode_unfolds
         self._epsilon = epsilon
-        super(LTCCell, self).__init__(name="wormnet", **kwargs)
+        super(LTCCell, self).__init__(name="ltc_cell")
 
     @property
     def state_size(self):
@@ -298,6 +303,19 @@ class LTCCell(tf.keras.layers.Layer):
         outputs = self._map_outputs(next_state)
 
         return outputs, [next_state]
+
+    def get_config(self):
+        seralized = self._wiring.get_config()
+        seralized["input_mapping"] = self._input_mapping
+        seralized["output_mapping"] = self._output_mapping
+        seralized["ode_unfolds"] = self._ode_unfolds
+        seralized["epsilon"] = self._epsilon
+        return seralized
+
+    @classmethod
+    def from_config(cls, config):
+        wiring = wirings.Wiring.from_config(config)
+        return cls(wiring=wiring, **config)
 
     def get_graph(self, include_sensory_neurons=True):
         if not self.built:
