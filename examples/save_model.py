@@ -25,7 +25,6 @@ model.evaluate(x=data_x, y=data_y)
 
 model.save("test.h5")
 
-restored_model = tf.keras.models.load_model(
-    "test.h5", custom_objects={"LTCCell": kncp.LTCCell}
-)
+restored_model = tf.keras.models.load_model("test.h5")
+
 restored_model.evaluate(x=data_x, y=data_y)

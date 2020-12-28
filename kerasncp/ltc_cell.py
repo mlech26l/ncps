@@ -17,11 +17,8 @@ import numpy as np
 import tensorflow as tf
 
 
-# Not working inside RNN layer
-# @tf.keras.utils.register_keras_serializable(package="Custom", name="LTCCell")
-
-
-class LTCCell(tf.keras.layers.Layer):
+@tf.keras.utils.register_keras_serializable(package="Custom", name="LTCCell")
+class LTCCell(tf.keras.layers.AbstractRNNCell):
     def __init__(
         self,
         wiring,
@@ -84,6 +81,10 @@ class LTCCell(tf.keras.layers.Layer):
     @property
     def motor_size(self):
         return self._wiring.output_dim
+
+    @property
+    def output_size(self):
+        return self.motor_size
 
     @property
     def synapse_count(self):
