@@ -9,8 +9,8 @@ data_x = np.random.default_rng().normal(size=(100, 16, 10))
 data_y = np.random.default_rng().normal(size=(100, 16, 1))
 print("data_y.shape: ", str(data_y.shape))
 
-arch = kncp.wirings.FullyConnected(16,8)  # 16 units, 8 motor neurons
-rnn_cell = kncp.LTCCell(arch)
+wiring = kncp.wirings.FullyConnected(16,8)  # 16 units, 8 motor neurons
+rnn_cell = kncp.LTCCell(wiring)
 
 dense1 = tf.keras.layers.Dense(16,activation="tanh")
 dense2 = tf.keras.layers.Dense(1)
@@ -62,3 +62,6 @@ def infer_hidden_states(single_step_model,state_size,data_x):
 # Now we can infer the hidden state
 states = infer_hidden_states(single_step_model,rnn_cell.state_size,data_x)
 print("Hidden states of first example ",states[0])
+
+for i in range(wiring.units):
+    print("Neuron {:0d} is a {:} neuron".format(i,wiring.get_type_of_neuron(i)))
