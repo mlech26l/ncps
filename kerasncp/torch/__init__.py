@@ -15,7 +15,4 @@
 
 from __future__ import absolute_import
 
-# TensorFlow or PyTorch implementation must be load separately
-from . import wirings
-from . import datasets
-__version__ = "2.0.0"
+from .ltc_cell import LTCCell

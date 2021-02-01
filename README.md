@@ -16,9 +16,29 @@ Requirements:
 
 - Python 3.6
 - TensorFlow 2.0
+- (Optional) PyTorch 1.7
 
 ```bash
 pip install keras-ncp
+```
+
+## Update January 2021: Experimental PyTorch support added
+
+With ```keras-ncp``` version 2.0 experimental PyTorch support is added. There is an example on how to use the PyTorch binding in the [examples](https://github.com/mlech26l/keras-ncp/blob/master/examples/pt_example.py) folder and a Colab notebook linked below.
+**Note** that the support is currently experimental, which means that it currently misses some functionality (e.g., no plotting, no irregularly sampled time-series,etc. ) and might be subject to breaking API changes in future updates.
+
+
+### Breaking API changes between 1.x and 2.x
+
+The TensorFlow 2.0 bindings have been moved to the ```tf``` submodule. Thus the only breaking change regarding the TensorFlow/Keras bindings concern the import
+
+python3
+```
+# Import shared modules for wirings, datasets,...
+import kerasncp as kncp
+# Import framework-specific binding
+from kerasncp.tf import LTCCell      # Use TensorFlow binding
+(from kerasncp.torch import LTCCell  # Use PyTorch binding)
 ```
 
 ## Colab notebooks
@@ -27,12 +47,13 @@ We have created a few Google Colab notebooks for an interactive introduction to 
 
 - [Google Colab: Basic usage](https://colab.research.google.com/drive/1IvVXVSC7zZPo5w-PfL3mk1MC3PIPw7Vs?usp=sharing)
 - [Google Colab: Stacking NCPs with other layers](https://colab.research.google.com/drive/1-mZunxqVkfZVBXNPG0kTSKUNQUSdZiBI?usp=sharing)
+- [NEW: Google Colab: Pytorch binding](https://colab.research.google.com/drive/1VWoGcpyqGvrUOUzH7ccppE__m-n1cAiI?usp=sharing)
 
 ## Usage: the basics
 
 The package is composed of two main parts: 
 
-- The LTC model as a ```tf.keras.layers.Layer``` RNN cell.
+- The LTC model as a ```tf.keras.layers.Layer``` or ```torch.nn.Module``` RNN cell
 - An wiring architecture for the LTC cell above
 
 The wiring could be fully-connected (all-to-all) or sparsely designed using the NCP principles introduced in the paper.
@@ -43,9 +64,10 @@ Let's create a LTC network consisting of 8 fully-connected neurons that receive 
 ```python
 from tensorflow import keras
 import kerasncp as kncp
+from kerasncp.tf import LTCCell
 
 wiring = kncp.wirings.FullyConnected(8, 1)  # 8 units, 1 motor neuron
-ltc_cell = kncp.LTCCell(wiring) # Create LTC model
+ltc_cell = LTCCell(wiring) # Create LTC model
 
 model = keras.Sequential(
     [
@@ -81,7 +103,7 @@ ncp_wiring = kncp.wirings.NCP(
     # command neuron layer
     motor_fanin=4,  # How many incoming synapses has each motor neuron
 )
-ncp_cell = kncp.LTCCell(
+ncp_cell = LTCCell(
     ncp_wiring,
     initialization_ranges={
         # Overwrite some of the initialization ranges

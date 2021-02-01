@@ -1,4 +1,4 @@
-# Copyright 2020 Mathias Lechner
+# Copyright 2020-2021 Mathias Lechner
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 import numpy as np
-import tensorflow as tf
 
 
 class Wiring:
@@ -22,6 +22,9 @@ class Wiring:
         self.adjacency_matrix = np.zeros([units, units], dtype=np.int32)
         self.input_dim = None
         self.output_dim = None
+
+    def is_built(self):
+        return self.input_dim is not None
 
     def build(self, input_shape):
         input_dim = int(input_shape[1])
@@ -34,11 +37,11 @@ class Wiring:
         if self.input_dim is None:
             self.set_input_dim(input_dim)
 
-    def erev_initializer(self, shape, dtype=None):
-        return tf.convert_to_tensor(self.adjacency_matrix, dtype=tf.float32)
+    def erev_initializer(self, shape=None, dtype=None):
+        return np.copy(self.adjacency_matrix)
 
-    def sensory_erev_initializer(self, shape, dtype=None):
-        return tf.convert_to_tensor(self.sensory_adjacency_matrix, dtype=tf.float32)
+    def sensory_erev_initializer(self, shape=None, dtype=None):
+        return np.copy(self.sensory_adjacency_matrix)
 
     def set_input_dim(self, input_dim):
         self.input_dim = input_dim
@@ -357,4 +360,3 @@ class NCP(Wiring):
         self._build_inter_to_command_layer()
         self._build_recurrent_command_layer()
         self._build_command__to_motor_layer()
-

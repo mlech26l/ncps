@@ -3,6 +3,7 @@ import os
 from tensorflow import keras
 import tensorflow as tf
 import kerasncp as kncp
+from kerasncp.tf import LTCCell
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -54,7 +55,7 @@ wiring = kncp.wirings.NCP(
     # command neuron layer
     motor_fanin=6,  # How many incomming syanpses has each motor neuron
 )
-rnn_cell = kncp.LTCCell(wiring)
+rnn_cell = LTCCell(wiring)
 
 # We need to use the TimeDistributed layer to independently apply the
 # Conv1D/MaxPool1D/Dense over each time-step of the input time-series.
@@ -77,7 +78,8 @@ model = keras.models.Sequential(
     ]
 )
 model.compile(
-    optimizer=keras.optimizers.Adam(0.01), loss="mean_squared_error",
+    optimizer=keras.optimizers.Adam(0.01),
+    loss="mean_squared_error",
 )
 
 model.summary(line_length=100)

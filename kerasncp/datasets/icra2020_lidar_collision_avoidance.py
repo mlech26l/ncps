@@ -1,4 +1,4 @@
-# Copyright 2020 Mathias Lechner
+# Copyright 2020-2021 Mathias Lechner
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,8 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 import numpy as np
-import tensorflow as tf
+import hashlib
+import urllib.request
 
 
 def _augment_data(data):
@@ -64,15 +67,24 @@ def _align_in_sequences(data, seq_len):
     return (aligned_x, aligned_y)
 
 
-def load_data(path="icra2020_lidar_collision_avoidance.npz", seq_len=32):
-
-    local_path = tf.keras.utils.get_file(
-        path,
-        "https://github.com/mlech26l/icra_lds/raw/master/icra2020_imitation_data_packed.npz",  # 9 MB, they won't notice that we host the dataset on github
-        cache_subdir="datasets",
-        file_hash="4ee5be974c4ced3308b79f3b74bc4e4cb41f306b35a07b787cbe78fa62896ae0",
-        hash_algorithm="sha256",
-    )
+def load_data(local_path=None, seq_len=32):
+    url = "https://github.com/mlech26l/icra_lds/raw/master/icra2020_imitation_data_packed.npz"
+    if local_path is None:
+        os.makedirs("datasets", exist_ok=True)
+        local_path = os.path.join("datasets", "icra2020_imitation_data_packed.npz")
+    download_file = True
+    if os.path.isfile(local_path):
+        md5 = hashlib.md5(open(local_path, "rb").read()).hexdigest()
+        if md5 == "15ab035e0866fc065acfc0ad781d75c5":
+            # No need to download file
+            download_file = False
+    if download_file:
+        print("Downloading file '{}'".format(url))
+        with urllib.request.urlopen(url) as response, open(
+            local_path, "wb"
+        ) as out_file:
+            data = response.read()
+            out_file.write(data)
 
     data = _unpack(local_path)
     train_data, test_data = _train_test_split(data)
