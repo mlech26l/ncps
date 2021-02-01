@@ -32,7 +32,7 @@ With ```keras-ncp``` version 2.0 experimental PyTorch support is added. There is
 
 The TensorFlow 2.0 bindings have been moved to the ```tf``` submodule. Thus the only breaking change regarding the TensorFlow/Keras bindings concern the import
 
-python3
+python
 ```
 # Import shared modules for wirings, datasets,...
 import kerasncp as kncp
