@@ -5,7 +5,7 @@
 [Online access via SharedIt](https://rdcu.be/b8sEo)
 
 Neural Circuit Policies (NCPs) are designed sparse recurrent neural networks based on the LTC neuron and synapse model loosely inspired by the nervous system of the organism [C. elegans](http://www.wormbook.org/chapters/www_celegansintro/celegansintro.html). 
-This page is a description of the Keras (TensorFlow 2.0 package) reference implementation of NCPs.
+This page is a description of the Keras (TensorFlow 2 package) reference implementation of NCPs.
 For reproducibility materials of the paper see [the corresponding subpage](https://github.com/mlech26l/keras-ncp/tree/master/reproducibility/README.md).
 
 ![alt](misc/wirings.png)
@@ -15,7 +15,7 @@ For reproducibility materials of the paper see [the corresponding subpage](https
 Requirements:
 
 - Python 3.6
-- TensorFlow 2.0
+- TensorFlow 2.4
 - (Optional) PyTorch 1.7
 
 ```bash
@@ -30,7 +30,7 @@ With ```keras-ncp``` version 2.0 experimental PyTorch support is added. There is
 
 ### Breaking API changes between 1.x and 2.x
 
-The TensorFlow 2.0 bindings have been moved to the ```tf``` submodule. Thus the only breaking change regarding the TensorFlow/Keras bindings concern the import
+The TensorFlow bindings have been moved to the ```tf``` submodule. Thus the only breaking change regarding the TensorFlow/Keras bindings concern the import
 
 
 ```python
