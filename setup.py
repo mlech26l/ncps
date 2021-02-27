@@ -17,7 +17,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="keras-ncp",
-    version="2.0.0",
+    version="2.0.1",
     packages=find_packages(),  # include/exclude arguments take * as wildcard, . for any sub-package names
     description="Neural Circuit Policies implementation for Keras (TensorFlow 2) and PyTorch",
     url="https://github.com/mlech26l/keras-ncp",
@@ -27,7 +27,12 @@ setup(
     # tensorflow and torch isn't a dependency because it would force the
     # download of the gpu version or the cpu version.
     # users should install it manually.
-    install_requires=["packaging", "future", "networkx", "matplotlib",],
+    install_requires=[
+        "packaging",
+        "future",
+        "networkx",
+        "matplotlib",
+    ],
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3.6",

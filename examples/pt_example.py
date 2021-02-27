@@ -9,7 +9,7 @@ import pytorch_lightning as pl
 import torch
 import torch.utils.data as data
 
-# nn.Module that unfolds a RNN cell into a sequence 
+# nn.Module that unfolds a RNN cell into a sequence
 class RNNSequence(nn.Module):
     def __init__(
         self,
@@ -32,6 +32,7 @@ class RNNSequence(nn.Module):
             outputs.append(new_output)
         outputs = torch.stack(outputs, dim=1)  # return entire sequence
         return outputs
+
 
 # LightningModule for training a RNNSequence module
 class SequenceLearner(pl.LightningModule):
@@ -113,4 +114,3 @@ trainer = pl.Trainer(
 )
 trainer.fit(learn, dataloader)
 results = trainer.test(learn, dataloader)
-

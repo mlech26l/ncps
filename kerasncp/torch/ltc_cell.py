@@ -183,7 +183,9 @@ class LTCCell(nn.Module):
         sensory_w_activation = self._params["sensory_w"] * self._sigmoid(
             inputs, self._params["sensory_mu"], self._params["sensory_sigma"]
         )
-        sensory_w_activation *= self._params["sensory_sparsity_mask"]
+        sensory_w_activation *= self._params["sensory_sparsity_mask"].to(
+            sensory_w_activation.device
+        )
 
         sensory_rev_activation = sensory_w_activation * self._params["sensory_erev"]
 
@@ -200,7 +202,7 @@ class LTCCell(nn.Module):
                 v_pre, self._params["mu"], self._params["sigma"]
             )
 
-            w_activation *= self._params["sparsity_mask"]
+            w_activation *= self._params["sparsity_mask"].to(w_activation.device)
 
             rev_activation = w_activation * self._params["erev"]
 
