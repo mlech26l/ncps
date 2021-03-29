@@ -110,7 +110,7 @@ trainer = pl.Trainer(
     max_epochs=400,
     progress_bar_refresh_rate=1,
     gradient_clip_val=1,  # Clip gradient to stabilize training
-    gpus=0,
+    gpus=1,
 )
 trainer.fit(learn, dataloader)
 results = trainer.test(learn, dataloader)
