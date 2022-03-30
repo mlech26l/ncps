@@ -29,7 +29,7 @@ class LTCCell(nn.Module):
     ):
         super(LTCCell, self).__init__()
         if in_features is not None:
-            wiring.build((None, in_features))
+            wiring.build(in_features)
         if not wiring.is_built():
             raise ValueError(
                 "Wiring error! Unknown number of input features. Please pass the parameter 'in_features' or call the 'wiring.build()'."
@@ -50,6 +50,7 @@ class LTCCell(nn.Module):
         self._output_mapping = output_mapping
         self._ode_unfolds = ode_unfolds
         self._epsilon = epsilon
+        self._clip = torch.nn.ReLU()
         self._allocate_parameters()
 
     @property
@@ -239,9 +240,6 @@ class LTCCell(nn.Module):
         if self._output_mapping == "affine":
             output = output + self._params["output_b"]
         return output
-
-    def _clip(self, w):
-        return torch.nn.ReLU()(w)
 
     def apply_weight_constraints(self):
         self._params["w"].data = self._clip(self._params["w"].data)

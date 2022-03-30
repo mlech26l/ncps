@@ -20,14 +20,21 @@ class Wiring:
     def __init__(self, units):
         self.units = units
         self.adjacency_matrix = np.zeros([units, units], dtype=np.int32)
+        self.sensory_adjacency_matrix = None
         self.input_dim = None
         self.output_dim = None
+
+    @property
+    def num_layers(self):
+        return 1
+
+    def get_neurons_of_layer(self, layer_id):
+        return list(range(self.units))
 
     def is_built(self):
         return self.input_dim is not None
 
-    def build(self, input_shape):
-        input_dim = int(input_shape[1])
+    def build(self, input_dim):
         if not self.input_dim is None and self.input_dim != input_dim:
             raise ValueError(
                 "Conflicting input dimensions provided. set_input_dim() was called with {} but actual input has dimension {}".format(
@@ -256,6 +263,19 @@ class NCP(Wiring):
                     self._inter_fanout, self._num_command_neurons
                 )
             )
+
+    @property
+    def num_layers(self):
+        return 3
+
+    def get_neurons_of_layer(self, layer_id):
+        if layer_id == 0:
+            return self._inter_neurons
+        elif layer_id == 1:
+            return self._command_neurons
+        elif layer_id == 2:
+            return self._motor_neurons
+        raise ValueError("Unknown layer {}".format(layer_id))
 
     def get_type_of_neuron(self, neuron_id):
         if neuron_id < self._num_motor_neurons:

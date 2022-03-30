@@ -122,10 +122,13 @@ class LTCCell(tf.keras.layers.AbstractRNNCell):
     def build(self, input_shape):
 
         # Check if input_shape is nested tuple/list
-        if isinstance(input_shape[0], (tuple, list)):
-            input_shape = input_shape[0]
+        if isinstance(input_shape[0], tuple):
+            # Nested tuple -> First item represent feature dimension
+            input_dim = input_shape[0][-1]
+        else:
+            input_dim = input_shape[-1]
 
-        self._wiring.build(input_shape)
+        self._wiring.build(input_dim)
 
         self._params = {}
         self._params["gleak"] = self.add_weight(
