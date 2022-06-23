@@ -15,6 +15,7 @@
 from kerasncp import wirings
 import numpy as np
 from packaging.version import parse
+
 try:
     import tensorflow as tf
 except:
@@ -122,7 +123,9 @@ class LTCCell(tf.keras.layers.AbstractRNNCell):
     def build(self, input_shape):
 
         # Check if input_shape is nested tuple/list
-        if isinstance(input_shape[0], tuple):
+        if isinstance(input_shape[0], tuple) or isinstance(
+            input_shape[0], tf.TensorShape
+        ):
             # Nested tuple -> First item represent feature dimension
             input_dim = input_shape[0][-1]
         else:

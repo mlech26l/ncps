@@ -103,7 +103,9 @@ class CfcCell(tf.keras.layers.AbstractRNNCell):
         return self.units
 
     def build(self, input_shape):
-        if isinstance(input_shape[0], tuple):
+        if isinstance(input_shape[0], tuple) or isinstance(
+            input_shape[0], tf.TensorShape
+        ):
             # Nested tuple -> First item represent feature dimension
             input_dim = input_shape[0][-1]
         else:
@@ -120,7 +122,11 @@ class CfcCell(tf.keras.layers.AbstractRNNCell):
             backbone_layers.append(tf.keras.layers.Dropout(self._hidden_dropout))
 
         self.backbone_fn = tf.keras.models.Sequential(backbone_layers)
-        cat_shape = self.state_size+input_dim if self._hidden_layers == 0 else self._hidden_units
+        cat_shape = int(
+            self.state_size + input_dim
+            if self._hidden_layers == 0
+            else self._hidden_units
+        )
         if self.mode == "pure":
             self.ff1_kernel = self.add_weight(
                 shape=(cat_shape, self.state_size),

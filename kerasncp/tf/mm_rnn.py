@@ -54,7 +54,9 @@ class MixedMemoryRNN(tf.keras.layers.AbstractRNNCell):
 
     def build(self, input_shape):
         input_dim = input_shape[-1]
-        if isinstance(input_shape[0], tuple):
+        if isinstance(input_shape[0], tuple) or isinstance(
+            input_shape[0], tf.TensorShape
+        ):
             # Nested tuple
             input_dim = input_shape[0][-1]
 
