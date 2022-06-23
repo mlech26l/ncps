@@ -111,7 +111,7 @@ class LTCCell(tf.keras.layers.AbstractRNNCell):
 
     @property
     def sensory_synapse_count(self):
-        return np.sum(np.abs(self._wiring.adjacency_matrix))
+        return np.sum(np.abs(self._wiring.sensory_adjacency_matrix))
 
     def _get_initializer(self, param_name):
         minval, maxval = self._init_ranges[param_name]
