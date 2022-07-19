@@ -26,6 +26,7 @@ class LTCCell(nn.Module):
         output_mapping="affine",
         ode_unfolds=6,
         epsilon=1e-8,
+        implicit_param_constraints=False
     ):
         super(LTCCell, self).__init__()
         if in_features is not None:
@@ -34,6 +35,8 @@ class LTCCell(nn.Module):
             raise ValueError(
                 "Wiring error! Unknown number of input features. Please pass the parameter 'in_features' or call the 'wiring.build()'."
             )
+        self.make_positive_fn = nn.Softplus() if implicit_param_constraints else nn.Identity()
+        self._implicit_param_constraints= implicit_param_constraints
         self._init_ranges = {
             "gleak": (0.001, 1.0),
             "vleak": (-0.2, 0.2),
@@ -181,7 +184,7 @@ class LTCCell(nn.Module):
         v_pre = state
 
         # We can pre-compute the effects of the sensory neurons here
-        sensory_w_activation = self._params["sensory_w"] * self._sigmoid(
+        sensory_w_activation = self.make_positive_fn(self._params["sensory_w"]) * self._sigmoid(
             inputs, self._params["sensory_mu"], self._params["sensory_sigma"]
         )
         sensory_w_activation *= self._params["sensory_sparsity_mask"].to(
@@ -195,11 +198,12 @@ class LTCCell(nn.Module):
         w_denominator_sensory = torch.sum(sensory_w_activation, dim=1)
 
         # cm/t is loop invariant
-        cm_t = self._params["cm"] / (elapsed_time / self._ode_unfolds)
+        cm_t = self.make_positive_fn(self._params["cm"]) / (elapsed_time / self._ode_unfolds)
 
         # Unfold the multiply ODE multiple times into one RNN step
+        w_param = self.make_positive_fn(self._params["w"])
         for t in range(self._ode_unfolds):
-            w_activation = self._params["w"] * self._sigmoid(
+            w_activation = w_param * self._sigmoid(
                 v_pre, self._params["mu"], self._params["sigma"]
             )
 
@@ -211,12 +215,13 @@ class LTCCell(nn.Module):
             w_numerator = torch.sum(rev_activation, dim=1) + w_numerator_sensory
             w_denominator = torch.sum(w_activation, dim=1) + w_denominator_sensory
 
+            gleak = self.make_positive_fn(self._params["gleak"])
             numerator = (
                 cm_t * v_pre
-                + self._params["gleak"] * self._params["vleak"]
+                +  gleak* self._params["vleak"]
                 + w_numerator
             )
-            denominator = cm_t + self._params["gleak"] + w_denominator
+            denominator = cm_t + gleak + w_denominator
 
             # Avoid dividing by 0
             v_pre = numerator / (denominator + self._epsilon)
