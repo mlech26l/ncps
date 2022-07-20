@@ -26,7 +26,7 @@ class LTCCell(nn.Module):
         output_mapping="affine",
         ode_unfolds=6,
         epsilon=1e-8,
-        implicit_param_constraints=False
+        implicit_param_constraints=False,
     ):
         super(LTCCell, self).__init__()
         if in_features is not None:
@@ -35,8 +35,10 @@ class LTCCell(nn.Module):
             raise ValueError(
                 "Wiring error! Unknown number of input features. Please pass the parameter 'in_features' or call the 'wiring.build()'."
             )
-        self.make_positive_fn = nn.Softplus() if implicit_param_constraints else nn.Identity()
-        self._implicit_param_constraints= implicit_param_constraints
+        self.make_positive_fn = (
+            nn.Softplus() if implicit_param_constraints else nn.Identity()
+        )
+        self._implicit_param_constraints = implicit_param_constraints
         self._init_ranges = {
             "gleak": (0.001, 1.0),
             "vleak": (-0.2, 0.2),
@@ -80,8 +82,8 @@ class LTCCell(nn.Module):
     def sensory_synapse_count(self):
         return np.sum(np.abs(self._wiring.adjacency_matrix))
 
-    def add_weight(self, name, init_value):
-        param = torch.nn.Parameter(init_value)
+    def add_weight(self, name, init_value, requires_grad=True):
+        param = torch.nn.Parameter(init_value, requires_grad=requires_grad)
         self.register_parameter(name, param)
         return param
 
@@ -145,11 +147,15 @@ class LTCCell(nn.Module):
             init_value=torch.Tensor(self._wiring.sensory_erev_initializer()),
         )
 
-        self._params["sparsity_mask"] = torch.Tensor(
-            np.abs(self._wiring.adjacency_matrix)
+        self._params["sparsity_mask"] = self.add_weight(
+            "sparsity_mask",
+            torch.Tensor(np.abs(self._wiring.adjacency_matrix)),
+            requires_grad=False,
         )
-        self._params["sensory_sparsity_mask"] = torch.Tensor(
-            np.abs(self._wiring.sensory_adjacency_matrix)
+        self._params["sensory_sparsity_mask"] = self.add_weight(
+            "sensory_sparsity_mask",
+            torch.Tensor(np.abs(self._wiring.sensory_adjacency_matrix)),
+            requires_grad=False,
         )
 
         if self._input_mapping in ["affine", "linear"]:
@@ -184,11 +190,13 @@ class LTCCell(nn.Module):
         v_pre = state
 
         # We can pre-compute the effects of the sensory neurons here
-        sensory_w_activation = self.make_positive_fn(self._params["sensory_w"]) * self._sigmoid(
+        sensory_w_activation = self.make_positive_fn(
+            self._params["sensory_w"]
+        ) * self._sigmoid(
             inputs, self._params["sensory_mu"], self._params["sensory_sigma"]
         )
-        sensory_w_activation *= self._params["sensory_sparsity_mask"].to(
-            sensory_w_activation.device
+        sensory_w_activation = (
+            sensory_w_activation * self._params["sensory_sparsity_mask"]
         )
 
         sensory_rev_activation = sensory_w_activation * self._params["sensory_erev"]
@@ -198,7 +206,9 @@ class LTCCell(nn.Module):
         w_denominator_sensory = torch.sum(sensory_w_activation, dim=1)
 
         # cm/t is loop invariant
-        cm_t = self.make_positive_fn(self._params["cm"]) / (elapsed_time / self._ode_unfolds)
+        cm_t = self.make_positive_fn(self._params["cm"]) / (
+            elapsed_time / self._ode_unfolds
+        )
 
         # Unfold the multiply ODE multiple times into one RNN step
         w_param = self.make_positive_fn(self._params["w"])
@@ -207,7 +217,7 @@ class LTCCell(nn.Module):
                 v_pre, self._params["mu"], self._params["sigma"]
             )
 
-            w_activation *= self._params["sparsity_mask"].to(w_activation.device)
+            w_activation = w_activation * self._params["sparsity_mask"]
 
             rev_activation = w_activation * self._params["erev"]
 
@@ -216,11 +226,7 @@ class LTCCell(nn.Module):
             w_denominator = torch.sum(w_activation, dim=1) + w_denominator_sensory
 
             gleak = self.make_positive_fn(self._params["gleak"])
-            numerator = (
-                cm_t * v_pre
-                +  gleak* self._params["vleak"]
-                + w_numerator
-            )
+            numerator = cm_t * v_pre + gleak * self._params["vleak"] + w_numerator
             denominator = cm_t + gleak + w_denominator
 
             # Avoid dividing by 0
@@ -247,10 +253,13 @@ class LTCCell(nn.Module):
         return output
 
     def apply_weight_constraints(self):
-        self._params["w"].data = self._clip(self._params["w"].data)
-        self._params["sensory_w"].data = self._clip(self._params["sensory_w"].data)
-        self._params["cm"].data = self._clip(self._params["cm"].data)
-        self._params["gleak"].data = self._clip(self._params["gleak"].data)
+        if not self._implicit_param_constraints:
+            # In implicit mode, the parameter constraints are implemented via
+            # a softplus function at runtime
+            self._params["w"].data = self._clip(self._params["w"].data)
+            self._params["sensory_w"].data = self._clip(self._params["sensory_w"].data)
+            self._params["cm"].data = self._clip(self._params["cm"].data)
+            self._params["gleak"].data = self._clip(self._params["gleak"].data)
 
     def forward(self, inputs, states):
         # Regularly sampled mode (elapsed time = 1 second)
