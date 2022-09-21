@@ -1,9 +1,7 @@
-from unittest.loader import VALID_MODULE_NAME
 import torch
 import torch.nn as nn
 import numpy as np
 import torch.nn.functional as F
-from kerasncp.wirings import Wiring
 
 
 class LSTMCell(nn.Module):
