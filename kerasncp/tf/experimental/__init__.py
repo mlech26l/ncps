@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Mathias Lechner
+# Copyright 2020-2022 Mathias Lechner
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-from __future__ import absolute_import
-
-from .ltc_cell import LTCCell
+from kerasncp.tf.experimental.cfc_cell import WiredCfcCell, CfcCell
+from kerasncp.tf.experimental.mm_rnn import MixedMemoryRNN
+from kerasncp.tf.experimental.cfc_cell import Cfc

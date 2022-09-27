@@ -6,7 +6,7 @@ import numpy as np
 import os
 import tensorflow as tf
 import kerasncp as kncp
-from kerasncp.tf.experimental import WiredCfcCell, MixedMemoryRNN
+from kerasncp.tf.experimental import Cfc
 
 N = 48
 data_x = np.stack(
@@ -28,16 +28,12 @@ arch = kncp.wirings.NCP(
     motor_fanin=8,
 )  # 8 units, 1 motor neuron
 # arch = kncp.wirings.Random(8, 1, sparsity_level=0.5)  # 8 units, 1 motor neuron
-rnn_cell = WiredCfcCell(arch, mode="default")
-arch2 = kncp.wirings.Random(8, 1, sparsity_level=0.5)  # 8 units, 1 motor neuron
-rnn_cell2 = WiredCfcCell(arch2, mode="pure")
-rnn_cell3 = WiredCfcCell(arch2, mode="no_gate")
-mm_cell = MixedMemoryRNN(rnn_cell3)
+rnn = Cfc(arch, mode="default", return_sequences=True)
 
 model = tf.keras.models.Sequential(
     [
         tf.keras.layers.InputLayer(input_shape=(None, 2)),
-        tf.keras.layers.RNN(rnn_cell, return_sequences=True),
+        rnn,
     ]
 )
 model.compile(

@@ -253,10 +253,11 @@ class WiredCfcCell(tf.keras.layers.AbstractRNNCell):
 
     @property
     def state_size(self):
-        return [
-            len(self._wiring.get_neurons_of_layer(i))
-            for i in range(self._wiring.num_layers)
-        ]
+        return self._wiring.units
+        # return [
+        #     len(self._wiring.get_neurons_of_layer(i))
+        #     for i in range(self._wiring.num_layers)
+        # ]
 
     @property
     def input_size(self):
@@ -303,6 +304,7 @@ class WiredCfcCell(tf.keras.layers.AbstractRNNCell):
             # cell.build(cell_in_shape)
             self._cfc_layers.append(cell)
 
+        self._layer_sizes = [l.units for l in self._cfc_layers]
         self.built = True
 
     def call(self, inputs, states, **kwargs):
@@ -314,6 +316,7 @@ class WiredCfcCell(tf.keras.layers.AbstractRNNCell):
             # Regularly sampled mode (elapsed time = 1 second)
             t = 1.0
 
+        states = tf.split(states, self._layer_sizes, axis=-1)
         assert len(states) == self._wiring.num_layers
         new_hiddens = []
         for i, layer in enumerate(self._cfc_layers):
@@ -325,6 +328,8 @@ class WiredCfcCell(tf.keras.layers.AbstractRNNCell):
         assert len(new_hiddens) == self._wiring.num_layers
         if self._wiring.output_dim != output.shape[-1]:
             output = output[:, 0 : self._wiring.output_dim]
+
+        new_hiddens = tf.concat(new_hiddens, axis=-1)
         return output, new_hiddens
 
     def get_config(self):
@@ -340,3 +345,34 @@ class WiredCfcCell(tf.keras.layers.AbstractRNNCell):
     def from_config(cls, config):
         wiring = wirings.Wiring.from_config(config)
         return cls(wiring=wiring, **config)
+
+
+@tf.keras.utils.register_keras_serializable(package="Custom", name="CfC")
+class CfC(tf.keras.layers.RNN):
+    def __init__(
+        self,
+        wiring_or_units,
+        mixed_memory=False,
+        mode="default",
+        activation="lecun_tanh",
+        return_sequences=False,
+        return_state=False,
+        go_backwards=False,
+        stateful=False,
+        unroll=False,
+        time_major=False,
+        **kwargs,
+    ):
+        if isinstance(wiring_or_units, wirings.Wiring):
+            cell = WiredCfcCell(wiring_or_units)
+        else:
+            cell = CfcCell(wiring_or_units)
+        super(CfC, self).__init__(
+            cell,
+            return_sequences,
+            return_state,
+            go_backwards,
+            stateful,
+            unroll,
+            time_major,
+        )
