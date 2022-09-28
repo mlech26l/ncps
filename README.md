@@ -1,4 +1,4 @@
-# Neural Circuit Policies Enabling Auditable Autonomy
+# Neural Circuit Policies (for PyTorch and TensorFlow)
 
 [![DOI](https://zenodo.org/badge/290199641.svg)](https://zenodo.org/badge/latestdoi/290199641)
 ![ci_badge](https://github.com/mlech26l/keras-ncp/actions/workflows/python-test.yml/badge.svg) 
@@ -6,7 +6,9 @@
 ![PyPI version](https://img.shields.io/pypi/v/keras-ncp)
 ![downloads](https://img.shields.io/pypi/dm/keras-ncp)
 
-[Online access via SharedIt](https://rdcu.be/b8sEo)
+## Papers
+
+[Neural Circuit Policies Enabling Auditable Autonomy](https://publik.tuwien.ac.at/files/publik_292280.pdf)
 
 Neural Circuit Policies (NCPs) are designed sparse recurrent neural networks loosely inspired by the nervous system of the organism [C. elegans](http://www.wormbook.org/chapters/www_celegansintro/celegansintro.html). 
 This page is a description of the Keras (TensorFlow 2 package) reference implementation of NCPs.
