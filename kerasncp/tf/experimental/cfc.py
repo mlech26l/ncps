@@ -13,7 +13,7 @@ class CfC(tf.keras.layers.RNN):
         activation="lecun_tanh",
         backbone_units=None,
         backbone_layers=None,
-        backbone_dr=None,
+        backbone_dropout=None,
         return_sequences=False,
         return_state=False,
         go_backwards=False,
@@ -27,21 +27,21 @@ class CfC(tf.keras.layers.RNN):
                 raise ValueError(f"Cannot use backbone_units in wired mode")
             if backbone_layers is not None:
                 raise ValueError(f"Cannot use backbone_layers in wired mode")
-            if backbone_dr is not None:
-                raise ValueError(f"Cannot use backbone_dr in wired mode")
+            if backbone_dropout is not None:
+                raise ValueError(f"Cannot use backbone_dropout in wired mode")
             raise NotImplementedError()
             # cell = WiredCfCCell(wiring_or_units, mode=mode, activation=activation)
         else:
             backbone_units = 128 if backbone_units is None else backbone_units
             backbone_layers = 1 if backbone_layers is None else backbone_layers
-            backbone_dr = 0.0 if backbone_dr is None else backbone_dr
+            backbone_dropout = 0.0 if backbone_dropout is None else backbone_dropout
             cell = CfCCell(
                 wiring_or_units,
                 mode=mode,
                 activation=activation,
                 backbone_units=backbone_units,
                 backbone_layers=backbone_layers,
-                backbone_dr=backbone_dr,
+                backbone_dropout=backbone_dropout,
             )
         if mixed_memory:
             cell = MixedMemoryRNN(cell)

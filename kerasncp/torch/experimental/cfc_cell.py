@@ -43,7 +43,7 @@ class CfCCell(nn.Module):
         backbone_activation="lecun_tanh",
         backbone_units=128,
         backbone_layers=1,
-        backbone_dr=0.0,
+        backbone_dropout=0.0,
         sparsity_mask=None,
     ):
         super(CfCCell, self).__init__()
@@ -85,8 +85,8 @@ class CfCCell(nn.Module):
         for i in range(1, backbone_layers):
             layer_list.append(nn.Linear(backbone_units, backbone_units))
             layer_list.append(backbone_activation())
-            if backbone_dr > 0.0:
-                layer_list.append(torch.nn.Dropout(backbone_dr))
+            if backbone_dropout > 0.0:
+                layer_list.append(torch.nn.Dropout(backbone_dropout))
         self.backbone = nn.Sequential(*layer_list)
         self.backbone_layers = backbone_layers
         self.tanh = nn.Tanh()
