@@ -13,10 +13,11 @@
 # limitations under the License.
 
 
-from __future__ import absolute_import
+# from __future__ import absolute_import
 
-__all__ = ['CfC', 'CfCCell','LTCCell']
 
-from .ltc_cell import LTCCell
+from ncps.torch.ltc_cell import LTCCell
 from .cfc_cell import CfCCell
 from .cfc import CfC
+
+__all__ = ['CfC', 'CfCCell','LTCCell']

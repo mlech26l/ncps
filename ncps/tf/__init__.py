@@ -13,14 +13,13 @@
 # limitations under the License.
 
 
-from __future__ import absolute_import
+# from __future__ import absolute_import
 
 from .ltc_cell import LTCCell
 from .mm_rnn import MixedMemoryRNN
 from .cfc_cell import CfCCell
 from .cfc import CfC
 from packaging.version import parse
-__all__ = ['CfC', 'CfCCell','LTCCell','MixedMemoryRNN']
 
 try:
     import tensorflow as tf
@@ -40,3 +39,4 @@ if parse(tf.__version__) < parse("2.0.0"):
         "You can use `pip freeze` to check afterwards that everything is "
         "ok.".format(version=tf.__version__)
     )
+__all__ = ['CfC', 'CfCCell','LTCCell','MixedMemoryRNN']
