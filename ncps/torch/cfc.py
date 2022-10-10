@@ -81,7 +81,7 @@ class CfC(nn.Module):
         self.batch_first = batch_first
         self.return_sequences = return_sequences
 
-        if isinstance(self.wiring_or_hidden_size, ncps.wirings.Wiring):
+        if isinstance(units, ncps.wirings.Wiring):
             self.wired_mode = True
             if backbone_units is not None:
                 raise ValueError(f"Cannot use backbone_units in wired mode")
@@ -91,14 +91,15 @@ class CfC(nn.Module):
                 raise ValueError(f"Cannot use backbone_dropout in wired mode")
             # self.rnn_cell = WiredCfCCell(input_size, wiring_or_hidden_size)
             raise NotImplementedError()
-            self.hidden_size = wiring_or_hidden_size.units
-            self.output_size = wiring_or_hidden_size.output_dim
+            self.wiring = units
+            self.hidden_size = self.wiring.units
+            self.output_size = self.wiring.output_dim
         else:
             self.wired_false = True
             backbone_units = 128 if backbone_units is None else backbone_units
             backbone_layers = 1 if backbone_layers is None else backbone_layers
             backbone_dropout = 0.0 if backbone_dropout is None else backbone_dropout
-            self.hidden_size = self.wiring_or_hidden_size
+            self.hidden_size = units
             self.output_size = self.hidden_size
             self.rnn_cell = CfCCell(
                 input_size,
