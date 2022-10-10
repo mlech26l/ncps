@@ -1,0 +1,9 @@
+
+python:
+  pip_install: true
+
+# Build documentation in the docs/ directory with Sphinx
+sphinx:
+   configuration: docs/conf.py
+
+requirements_file: .readthedocs-requirements.txt
