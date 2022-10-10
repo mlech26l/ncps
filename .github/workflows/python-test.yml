@@ -35,4 +35,4 @@ jobs:
         echo "PYTHONPATH=." >> $GITHUB_ENV
     - name: Test with pytest
       run: |
-        pytest kerasncp/tests
+        pytest ncps/tests
