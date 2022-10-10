@@ -16,3 +16,5 @@
 from __future__ import absolute_import
 
 from .ltc_cell import LTCCell
+from .cfc_cell import CfCCell
+from .cfc import CfC

@@ -14,29 +14,9 @@
 
 
 import numpy as np
-from packaging.version import parse
+import tensorflow as tf
 
-try:
-    import tensorflow as tf
-except:
-    raise ImportWarning(
-        "It seems like the Tensorflow package is not installed\n"
-        "Please run"
-        "`$ pip install tensorflow`. \n",
-    )
-
-if parse(tf.__version__) < parse("2.0.0"):
-    raise ImportError(
-        "The Tensorflow package version needs to be at least 2.0.0 \n"
-        "for keras-ncp to run. Currently, your TensorFlow version is \n"
-        "{version}. Please upgrade with \n"
-        "`$ pip install --upgrade tensorflow`. \n"
-        "You can use `pip freeze` to check afterwards that everything is "
-        "ok.".format(version=tf.__version__)
-    )
-
-
-@tf.keras.utils.register_keras_serializable(package="Custom", name="MixedMemoryRNN")
+@tf.keras.utils.register_keras_serializable(package="ncps", name="MixedMemoryRNN")
 class MixedMemoryRNN(tf.keras.layers.AbstractRNNCell):
     def __init__(self, rnn_cell, forget_gate_bias=1.0, **kwargs):
         self.rnn_cell = rnn_cell

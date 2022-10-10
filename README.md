@@ -1,18 +1,17 @@
 # Neural Circuit Policies (for PyTorch and TensorFlow)
 
 [![DOI](https://zenodo.org/badge/290199641.svg)](https://zenodo.org/badge/latestdoi/290199641)
-![ci_badge](https://github.com/mlech26l/keras-ncp/actions/workflows/python-test.yml/badge.svg) 
+![ci_badge](https://github.com/mlech26l/ncps/actions/workflows/python-test.yml/badge.svg) 
 ![pyversion](misc/pybadge.svg)
-![PyPI version](https://img.shields.io/pypi/v/keras-ncp)
-![downloads](https://img.shields.io/pypi/dm/keras-ncp)
+![PyPI version](https://img.shields.io/pypi/v/ncps)
+![downloads](https://img.shields.io/pypi/dm/ncps)
 
 ## Papers
 
-[Neural Circuit Policies Enabling Auditable Autonomy](https://publik.tuwien.ac.at/files/publik_292280.pdf)
+[Neural Circuit Policies Enabling Auditable Autonomy (Open Access)](https://publik.tuwien.ac.at/files/publik_292280.pdf)
 
 Neural Circuit Policies (NCPs) are designed sparse recurrent neural networks loosely inspired by the nervous system of the organism [C. elegans](http://www.wormbook.org/chapters/www_celegansintro/celegansintro.html). 
-This page is a description of the Keras (TensorFlow 2 package) reference implementation of NCPs.
-For reproducibility materials of the paper see [the corresponding subpage](https://github.com/mlech26l/keras-ncp/tree/master/reproducibility/README.md).
+The goal of this package is to making working with NCPs in PyTorch and keras as easy as possible.
 
 ![alt](misc/wirings.png)
 
@@ -20,7 +19,7 @@ For reproducibility materials of the paper see [the corresponding subpage](https
 ## Installation
 
 ```bash
-pip install keras-ncp
+pip install ncps
 ```
 
 ## Update January 2021: Experimental PyTorch support added
@@ -35,7 +34,7 @@ The TensorFlow bindings have been moved to the ```tf``` submodule. Thus the only
 
 
 ```python
-# Import shared modules for wirings, datasets,...
+# Import shared modules for wirings.rst, datasets,...
 import kerasncp as kncp
 # Import framework-specific binding
 from kerasncp.tf import LTCCell      # Use TensorFlow binding

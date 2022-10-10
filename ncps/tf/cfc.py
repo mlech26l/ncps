@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import kerasncp
-from kerasncp.tf.experimental import CfCCell, MixedMemoryRNN
+import ncps
+from . import CfCCell, MixedMemoryRNN
 import tensorflow as tf
 
 
-@tf.keras.utils.register_keras_serializable(package="kerasncp", name="CfC")
+@tf.keras.utils.register_keras_serializable(package="ncps", name="CfC")
 class CfC(tf.keras.layers.RNN):
     def __init__(
         self,
-        wiring_or_units,
+        units,
         mixed_memory=False,
         mode="default",
         activation="lecun_tanh",
@@ -36,7 +36,7 @@ class CfC(tf.keras.layers.RNN):
         time_major=False,
         **kwargs,
     ):
-        if isinstance(wiring_or_units, kerasncp.wirings.Wiring):
+        if isinstance(units, ncps.wirings.Wiring):
             if backbone_units is not None:
                 raise ValueError(f"Cannot use backbone_units in wired mode")
             if backbone_layers is not None:
@@ -50,7 +50,7 @@ class CfC(tf.keras.layers.RNN):
             backbone_layers = 1 if backbone_layers is None else backbone_layers
             backbone_dropout = 0.0 if backbone_dropout is None else backbone_dropout
             cell = CfCCell(
-                wiring_or_units,
+                units,
                 mode=mode,
                 activation=activation,
                 backbone_units=backbone_units,

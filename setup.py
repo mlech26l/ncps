@@ -16,11 +16,11 @@ from __future__ import absolute_import
 from setuptools import setup, find_packages
 
 setup(
-    name="keras-ncp",
-    version="2.1.0",
+    name="ncps",
+    version="0.0.2",
     packages=find_packages(),  # include/exclude arguments take * as wildcard, . for any sub-package names
-    description="Neural Circuit Policies implementation for Keras (TensorFlow 2) and PyTorch",
-    url="https://github.com/mlech26l/keras-ncp",
+    description="Neural Circuit Policies for PyTorch and Keras",
+    url="https://github.com/mlech26l/ncps",
     author="Mathias Lechner",
     author_email="mlech26l@gmail.com",
     license="Apache License 2.0",

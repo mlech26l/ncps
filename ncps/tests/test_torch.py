@@ -17,8 +17,19 @@ import sys
 import time
 import pytest
 import torch
-from kerasncp.torch.experimental import CfC
+from ncps.torch import CfC, LTCCell
+import ncps
 
+def test_ncps():
+    input_size = 8
+
+    wiring = ncps.wirings.FullyConnected(8, 4)  # 16 units, 8 motor neurons
+    ltc_cell = LTCCell(wiring, input_size)
+    input = torch.randn(3, input_size)
+    hx = torch.zeros(3,wiring.units)
+    output, hx = ltc_cell(input,hx)
+    assert output.size() == (3,4)
+    assert hx.size() == (3,wiring.units)
 
 def test_default():
     input_size = 8

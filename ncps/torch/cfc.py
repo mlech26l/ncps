@@ -16,8 +16,8 @@
 import torch
 from torch import nn
 
-import kerasncp
-from kerasncp.torch.experimental import CfCCell
+import ncps
+from . import CfCCell
 
 
 class LSTMCell(nn.Module):
@@ -63,7 +63,7 @@ class CfC(nn.Module):
     def __init__(
         self,
         input_size,
-        wiring_or_hidden_size,
+        units,
         proj_size=None,
         return_sequences=True,
         batch_first=True,
@@ -76,12 +76,12 @@ class CfC(nn.Module):
     ):
         super(CfC, self).__init__()
         self.input_size = input_size
-        self.wiring_or_hidden_size = wiring_or_hidden_size
+        self.wiring_or_hidden_size = units
         self.proj_size = proj_size
         self.batch_first = batch_first
         self.return_sequences = return_sequences
 
-        if isinstance(wiring_or_hidden_size, kerasncp.wirings.Wiring):
+        if isinstance(self.wiring_or_hidden_size, ncps.wirings.Wiring):
             self.wired_mode = True
             if backbone_units is not None:
                 raise ValueError(f"Cannot use backbone_units in wired mode")
@@ -98,11 +98,11 @@ class CfC(nn.Module):
             backbone_units = 128 if backbone_units is None else backbone_units
             backbone_layers = 1 if backbone_layers is None else backbone_layers
             backbone_dropout = 0.0 if backbone_dropout is None else backbone_dropout
-            self.hidden_size = wiring_or_hidden_size
+            self.hidden_size = self.wiring_or_hidden_size
             self.output_size = self.hidden_size
             self.rnn_cell = CfCCell(
                 input_size,
-                wiring_or_hidden_size,
+                self.wiring_or_hidden_size,
                 mode,
                 activation,
                 backbone_units,
@@ -172,7 +172,7 @@ class CfC(nn.Module):
 
             if self.use_mixed:
                 h_state, c_state = self.lstm(inputs, (h_state, c_state))
-            h_state, h_out = self.rnn_cell.forward(inputs, h_state, ts)
+            h_out, h_state = self.rnn_cell.forward(inputs, h_state, ts)
             if self.return_sequences:
                 output_sequence.append(self.fc(h_out))
 
