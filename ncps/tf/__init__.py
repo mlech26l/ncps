@@ -20,7 +20,7 @@ from .mm_rnn import MixedMemoryRNN
 from .cfc_cell import CfCCell
 from .cfc import CfC
 from packaging.version import parse
-
+__all__ = ['CfC', 'CfCCell','LTCCell','MixedMemoryRNN']
 
 try:
     import tensorflow as tf

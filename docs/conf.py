@@ -71,3 +71,19 @@ html_theme = "furo"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+html_css_files = ["custom.css"]
+
+html_logo = "img/banner.png"
+# text_fonts = "FreightSans, Helvetica Neue, Helvetica, Arial, sans-serif"
+html_theme_options = {
+    "sidebar_hide_name": True,
+    # "page_width": "1140px",
+    # "fixed_sidebar": "true",
+    # "logo": "banner_64.png",
+    # "description_font_style": "Quicksand",
+    # "font_family": text_fonts,
+    # "caption_font_family": "Quicksand",
+    # "head_font_family": "Quicksand",
+    # "sidebar_collapse": True,
+    # "sidebar_includehidden": False,
+}
