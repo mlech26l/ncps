@@ -5,7 +5,7 @@ In this guide, we will train a NCP to play Atari.
 Instead of learning a policy via reinforcement learning (which can be a bit complex), we will
 make use of an pretrained expert policy that the NCP should copy using supervised learning (i.e., behavior cloning).
 
-.. image:: ../img/breakout.webp
+.. image:: ./img/breakout.webp
    :align: center
 
 
