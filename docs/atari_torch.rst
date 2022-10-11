@@ -1,4 +1,4 @@
-Playing Atari with an NCP and behavior cloning
+Playing Atari with an NCP and behavior cloning (PyTorch)
 =========================
 
 In this guide, we will train a NCP to play Atari.
@@ -11,15 +11,16 @@ make use of an pretrained expert policy that the NCP should copy using supervise
 
 Setup and Requirements
 -------------------------------------
-First, we need to install some packages
+Before we start, we need to install some packages
 
 .. code-block:: bash
 
-    pip3 install torch ncps ale-py==0.7.4 gym[atari,accept-rom-license]==0.23.1
+    pip3 install ncps torch ale-py==0.7.4 gym[atari,accept-rom-license]==0.23
 
-Setup and Requirements
+Defining the model
 -------------------------------------
-First, we need to install some packages
+The model consists of a convolutional block, followed by a CfC recurrent neural network.
+We first define a convolutional model that operates over just a batch of images and outputs a feature vector.
 
 .. code-block:: python
 
@@ -44,7 +45,7 @@ First, we need to install some packages
             x = self.norm(x)
             return x
 
-
+Next, we define a sequence model that first applies the same convolutional block to a sequence of images, followed by a CfC recurrent neural network.
 
 .. code-block:: python
 
@@ -66,9 +67,18 @@ First, we need to install some packages
             x, hx = self.rnn(x, hx)  # hx is the hidden state of the RNN
             return x, hx
 
-Setup and Requirements
+Dataloader
 -------------------------------------
-First, we need to install some packages
+Here, we define the Atari environment and the dataset.
+We have to wrap the environment with the Deepmind helper functions, which apply the following transformations:
+
+* Downscales the Atari frames to 84-by-84 pixels
+* Converts the frames to grayscale
+* Stacks 4 consecutive frames into a single observation
+
+The resulting observations are then 84-by-84 images with 4 channels.
+
+For the behavior cloning dataset, we will use the `AtariCloningDataset` PyTorch dataset provided by the `ncps` package.
 
 .. code-block:: python
 
@@ -97,30 +107,11 @@ First, we need to install some packages
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.0001)
 
-Setup and Requirements
+Training loop
 -------------------------------------
-First, we need to install some packages
+For the training, we define a function that train the model by making one pass over the dataset.
 
 .. code-block:: python
-
-    def eval(model, valloader):
-        losses, accs = [], []
-        model.eval()
-        device = next(model.parameters()).device  # get device the model is located on
-        with torch.no_grad():
-            for inputs, labels in valloader:
-                inputs = inputs.to(device)  # move data to same device as the model
-                labels = labels.to(device)
-
-                outputs, _ = model(inputs)
-                outputs = outputs.reshape(-1, *outputs.shape[2:])  # flatten
-                labels = labels.view(-1, *labels.shape[2:])  # flatten
-                loss = criterion(outputs, labels)
-                acc = (outputs.argmax(-1) == labels).float().mean()
-                losses.append(loss.item())
-                accs.append(acc.item())
-        return np.mean(losses), np.mean(accs)
-
 
     def train_one_epoch(model, criterion, optimizer, trainloader):
         running_loss = 0.0
@@ -147,10 +138,37 @@ First, we need to install some packages
             pbar.update(1)
         pbar.close()
 
+We also want to track the offline performance (= accuracy) of the model on the validation set.
+To this end, we define another function that iterates over a dataset and measures the accuracy.
 
-Setup and Requirements
+.. code-block:: python
+
+    def eval(model, valloader):
+        losses, accs = [], []
+        model.eval()
+        device = next(model.parameters()).device  # get device the model is located on
+        with torch.no_grad():
+            for inputs, labels in valloader:
+                inputs = inputs.to(device)  # move data to same device as the model
+                labels = labels.to(device)
+
+                outputs, _ = model(inputs)
+                outputs = outputs.reshape(-1, *outputs.shape[2:])  # flatten
+                labels = labels.view(-1, *labels.shape[2:])  # flatten
+                loss = criterion(outputs, labels)
+                acc = (outputs.argmax(-1) == labels).float().mean()
+                losses.append(loss.item())
+                accs.append(acc.item())
+        return np.mean(losses), np.mean(accs)
+
+
+Running the model in a closed-loop
 -------------------------------------
-First, we need to install some packages
+Next, we have to define the code for applying the model in a continuous control loop with the environment.
+There are two subtleties we need to take care of:
+
+#. Reset the RNN hidden states when a new episode starts in the Atari game
+#. Reshape the input frames to have an extra batch and time dimension of size 1 as the network accepts only batches of sequences instead of single frames
 
 .. code-block:: python
 
@@ -183,9 +201,9 @@ First, we need to install some packages
                             return returns
 
 
-Setup and Requirements
+Training the model
 -------------------------------------
-First, we need to install some packages
+With the functions and model defined above, we can how implement our training procedure very conveniently.
 
 .. code-block:: python
 
@@ -199,3 +217,9 @@ First, we need to install some packages
         # Apply model in closed-loop environment
         returns = run_closed_loop(model, env, num_episodes=10)
         print(f"Mean return {np.mean(returns)} (n={len(returns)})")
+
+.. code-block:: text
+
+    > Output
+
+The full source code can be downloaded `here <todo>`_

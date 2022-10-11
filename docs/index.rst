@@ -13,3 +13,6 @@ User’s Guide
     atari_torch
     atari_tf
     api/index
+
+
+(C) 2022 Mathias Lechner

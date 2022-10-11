@@ -58,6 +58,10 @@ The final model operates not on a batch of images but a batch of sequences of im
 
 .. code-block:: python
 
+    import tensorflow as tf
+    from ncps.tf import CfC
+    import numpy as np
+
     conv_block = tf.keras.models.Sequential(
         [
             tf.keras.Input((84, 84, 4)),
@@ -94,7 +98,11 @@ The final model operates not on a batch of images but a batch of sequences of im
 
 Defining a stateful model
 -------------------------------------
-The model we defined above operates on sequences.
+The model we defined above operates on sequences with the hidden state of the RNN being initialized to all zeros and the final hidden state being discarded between two inputs fed into the network consecutively. This behavior is preferred in our training setup as each training batch is independent of each previous batch.
+However, when we apply the model in a closed-loop setting, we need some mechanisms to *remember* the hidden state, i.e., use the final hidden state of the previous data batch as the initial values of the hidden state for the current data batch.
+In the context of machine learning, this is what a **stateful RNN** does.
+
+In our code, we need to define a second network that behaves *statefully* and share the architecture and weights with the original network.
 
 .. code-block:: python
 
@@ -108,9 +116,16 @@ The model we defined above operates on sequences.
         ]
     )
 
+.. note::
+    The model defined above does not share the weights with the stateless model (only the conv block is shared here). We have to take care of synchronizing the weights between the models later.
 
-Defining the model
+Running the model in a closed-loop
 -------------------------------------
+Next, we have to define the code for applying the model in a continuous control loop with the environment.
+There are two subtleties we need to take care of:
+
+#. Reset the RNN hidden states when a new episode starts in the Atari game
+#. Reshape the input frames to have an extra batch and time dimension of size 1 as the network accepts only batches of sequences instead of single frames
 
 .. code-block:: python
 
@@ -140,6 +155,16 @@ Defining the model
                     if num_episodes == 0:
                         return returns
 
+Evaluating the closed-loop performance during training
+-------------------------------------
+During the training, we measure only offline performance in the form of the training and validation accuracy.
+However, we also want to check after every training epoch how the cloned network is performing when applied the closed-loop environment.
+To this end, we have to define a keras callback that is invoked after every training epoch and implement the closed-loop evaluation.
+
+.. note::
+    We also have to take care of copying the weights form the stateless model (= the one that is trained) to the stateful model.
+
+.. code-block:: python
 
     class ClosedLoopCallback(tf.keras.callbacks.Callback):
         def __init__(self, stateless_model, stateful_model, env, rnn_to_reset):
@@ -160,8 +185,9 @@ Defining the model
             print(f"\nEpoch {epoch} return: {np.mean(r):0.2f} +- {np.std(r):0.2f}")
 
 
-Defining the model
+Training the model
 -------------------------------------
+For the actual training loop we make use of keras high-level `model.fit` functionality.
 
 .. code-block:: python
 
@@ -174,7 +200,8 @@ Defining the model
         ],
     )
 
-trains an MLP with one hidden layer to a maximum reward of 500 in less than a second
+.. code-block:: text
 
+    > Output
 
 The full source code can be downloaded `here <todo>`_
