@@ -15,7 +15,7 @@
 
 import torch
 from torch import nn
-
+from typing import Optional, Union
 import ncps
 from . import CfCCell
 
@@ -64,16 +64,32 @@ class CfC(nn.Module):
         self,
         input_size,
         units,
-        proj_size=None,
-        return_sequences=True,
-        batch_first=True,
-        mixed_memory=False,
-        mode="default",
-        activation="lecun_tanh",
-        backbone_units=None,
-        backbone_layers=None,
-        backbone_dropout=None,
+        proj_size: Optional[int] = None,
+        return_sequences: bool = True,
+        batch_first: bool = True,
+        mixed_memory: bool = False,
+        mode: str = "default",
+        activation: str = "lecun_tanh",
+        backbone_units: Optional[int] = None,
+        backbone_layers: Optional[int] = None,
+        backbone_dropout: Optional[int] = None,
     ):
+        """Applies a `Closed-form Continuous-time <https://arxiv.org/abs/2106.13898>`_ RNN to an input sequence.
+
+        Args:
+            input_size:
+            units: Number of hidden units
+            proj_size: If not None, the output of the RNN will be projected to a tensor with dimension proj_size (i.e., an implict linear output layer)
+            return_sequences: Whether to return the full sequence or just the last output
+            batch_first: Whether the batch or time dimension is the first (0-th) dimension
+            mixed_memory: Whether to augment the RNN by a `memory-cell <https://arxiv.org/abs/2006.04418>`_ to help learn long-term dependencies in the data
+            mode: Either "default", "pure" (direct solution approximation), or "no_gate" (without second gate).
+            activation: Activation function used in the backbone layers
+            backbone_units: Number of hidden units in the backbone layer (default 128)
+            backbone_layers: Number of backbone layers (default 1)
+            backbone_dropout: Dropout rate in the backbone layers (default 0)
+        """
+
         super(CfC, self).__init__()
         self.input_size = input_size
         self.wiring_or_hidden_size = units

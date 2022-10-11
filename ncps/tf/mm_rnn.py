@@ -15,6 +15,8 @@
 
 import numpy as np
 import tensorflow as tf
+from typing import Optional, Union
+
 
 @tf.keras.utils.register_keras_serializable(package="ncps", name="MixedMemoryRNN")
 class MixedMemoryRNN(tf.keras.layers.AbstractRNNCell):

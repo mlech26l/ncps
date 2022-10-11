@@ -3,7 +3,7 @@
 PyTorch nn.modules
 ------------------
 
-.. module:: ncps.torch
+.. automodule:: ncps.torch
 
 .. autoclass:: CfC
    :members:

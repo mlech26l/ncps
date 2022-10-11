@@ -15,6 +15,7 @@
 from ncps import wirings
 import numpy as np
 import tensorflow as tf
+from typing import Optional, Union
 
 
 @tf.keras.utils.register_keras_serializable(package="ncps", name="LTCCell")
@@ -29,6 +30,34 @@ class LTCCell(tf.keras.layers.AbstractRNNCell):
         initialization_ranges=None,
         **kwargs
     ):
+        """A liquid time-constant (LTC) cell.
+
+        Note: This is an RNNCell that process single time-steps. To get a full RNN that can process sequences, you need to wrap it with a `tf.keras.layers.RNN <https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN>`_.
+
+        Examples::
+
+             >>> import ncps
+             >>> from ncps.tf import LTCCell
+             >>>
+             >>> wiring = ncps.wirings.Random(16, output_dim=2, sparsity_level=0.5)
+             >>> cell = LTCCell(wiring)
+             >>> rnn = tf.keras.layers.RNN(cell)
+             >>> x = tf.random.uniform((1,4)) # (batch, features)
+             >>> h0 = tf.zeros((1, 16))
+             >>> y = cell(x,h0)
+             >>>
+             >>> x_seq = tf.random.uniform((1,20,4)) # (batch, time, features)
+             >>> y_seq = rnn(x_seq)
+
+         Args:
+             wiring:
+             input_mapping:
+             output_mapping:
+             ode_unfolds:
+             epsilon:
+             initialization_ranges:
+             **kwargs:
+        """
 
         self._init_ranges = {
             "gleak": (0.001, 1.0),

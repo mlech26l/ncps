@@ -3,7 +3,7 @@
 Tensorflow (keras Layers)
 ------------------
 
-.. module:: ncps.tf
+.. automodule:: ncps.tf
 
 .. autoclass:: CfC
    :members:

@@ -21,6 +21,7 @@ except:
 import torch.nn as nn
 import numpy as np
 import torch.nn.functional as F
+from typing import Optional, Union
 
 
 class LeCun(nn.Module):
@@ -44,6 +45,18 @@ class CfCCell(nn.Module):
         backbone_dropout=0.0,
         sparsity_mask=None,
     ):
+        """
+
+        Args:
+            input_size:
+            hidden_size:
+            mode:
+            backbone_activation:
+            backbone_units:
+            backbone_layers:
+            backbone_dropout:
+            sparsity_mask:
+        """
         super(CfCCell, self).__init__()
 
         self.input_size = input_size

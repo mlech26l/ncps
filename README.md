@@ -4,7 +4,9 @@
 ![ci_badge](https://github.com/mlech26l/ncps/actions/workflows/python-test.yml/badge.svg) 
 ![pyversion](misc/pybadge.svg)
 ![PyPI version](https://img.shields.io/pypi/v/ncps)
+![Documentation Status](https://readthedocs.org/projects/ncps/badge/?version=latest)](https://ncps.readthedocs.io/en/latest/?badge=latest) 
 ![downloads](https://img.shields.io/pypi/dm/ncps)
+
 
 ## Papers
 

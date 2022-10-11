@@ -10,8 +10,6 @@ User’s Guide
 
 .. toctree::
 
-    quickstart
-    walkthrough
-    recipes/index
-    examples/index
+    atari_torch
+    atari_tf
     api/index

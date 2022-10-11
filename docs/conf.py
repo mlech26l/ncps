@@ -14,6 +14,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath("."))
+sys.path.insert(0, os.path.abspath(".."))
 
 
 # -- Project information -----------------------------------------------------
@@ -27,7 +28,7 @@ version = ""
 # The full version, including alpha/beta/rc tags
 release = "0.0.1"
 
-html_favicon = "img/ncp_32.png"
+html_favicon = "img/ncp_32.ico"
 needs_sphinx = "3.0"
 
 # -- General configuration ---------------------------------------------------

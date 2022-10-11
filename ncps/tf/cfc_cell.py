@@ -15,6 +15,7 @@
 
 import numpy as np
 import tensorflow as tf
+from typing import Optional, Union
 
 # LeCun improved tanh activation
 # http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf
@@ -36,6 +37,19 @@ class CfCCell(tf.keras.layers.AbstractRNNCell):
         backbone_dropout=0.1,
         **kwargs,
     ):
+        """
+
+        Args:
+            units: Number of hidden units
+            input_sparsity:
+            recurrent_sparsity:
+            mode: Either "default", "pure" (direct solution approximation), or "no_gate" (without second gate).
+            activation: Activation function used in the backbone layers
+            backbone_units: Number of hidden units in the backbone layer (default 128)
+            backbone_layers: Number of backbone layers (default 1)
+            backbone_dropout: Dropout rate in the backbone layers (default 0)
+            **kwargs:
+        """
         super(CfCCell, self).__init__(**kwargs)
         self.units = units
         self.sparsity_mask = None
