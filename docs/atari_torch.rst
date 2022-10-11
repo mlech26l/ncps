@@ -218,8 +218,159 @@ With the functions and model defined above, we can how implement our training pr
         returns = run_closed_loop(model, env, num_episodes=10)
         print(f"Mean return {np.mean(returns)} (n={len(returns)})")
 
+
+The full source code can be downloaded `here <https://github.com/mlech26l/ncps/blob/master/examples/atari_torch.py>`_
+When running the code we get
+
 .. code-block:: text
 
-    > Output
-
-The full source code can be downloaded `here <todo>`_
+    > loss=0.4349: 100%|██████████| 938/938 [01:35<00:00,  9.83it/s]
+    > Epoch 1, val_loss=1.67, val_acc=31.94%
+    > Mean return 0.2 (n=10)
+    > loss=0.2806: 100%|██████████| 938/938 [01:30<00:00, 10.33it/s]
+    > Epoch 2, val_loss=0.43, val_acc=83.51%
+    > Mean return 3.7 (n=10)
+    > loss=0.223: 100%|██████████| 938/938 [01:31<00:00, 10.30it/s]
+    > Epoch 3, val_loss=0.2349, val_acc=91.43%
+    > Mean return 4.9 (n=10)
+    > loss=0.1951: 100%|██████████| 938/938 [01:31<00:00, 10.26it/s]
+    > Epoch 4, val_loss=2.824, val_acc=29.19%
+    > Mean return 0.6 (n=10)
+    > loss=0.1786: 100%|██████████| 938/938 [01:30<00:00, 10.33it/s]
+    > Epoch 5, val_loss=0.3122, val_acc=89.03%
+    > Mean return 4.0 (n=10)
+    > loss=0.1669: 100%|██████████| 938/938 [01:31<00:00, 10.22it/s]
+    > Epoch 6, val_loss=4.272, val_acc=22.84%
+    > Mean return 0.5 (n=10)
+    > loss=0.1575: 100%|██████████| 938/938 [01:32<00:00, 10.14it/s]
+    > Epoch 7, val_loss=0.2788, val_acc=89.78%
+    > Mean return 9.9 (n=10)
+    > loss=0.15: 100%|██████████| 938/938 [01:33<00:00, 10.08it/s]
+    > Epoch 8, val_loss=3.725, val_acc=25.07%
+    > Mean return 0.6 (n=10)
+    > loss=0.1429: 100%|██████████| 938/938 [01:31<00:00, 10.23it/s]
+    > Epoch 9, val_loss=0.5851, val_acc=77.82%
+    > Mean return 44.6 (n=10)
+    > loss=0.1369: 100%|██████████| 938/938 [01:32<00:00, 10.12it/s]
+    > Epoch 10, val_loss=0.7148, val_acc=71.74%
+    > Mean return 3.4 (n=10)
+    > loss=0.1316: 100%|██████████| 938/938 [01:32<00:00, 10.11it/s]
+    > Epoch 11, val_loss=0.2138, val_acc=92.27%
+    > Mean return 15.8 (n=10)
+    > loss=0.1267: 100%|██████████| 938/938 [01:33<00:00, 10.02it/s]
+    > Epoch 12, val_loss=0.2683, val_acc=90.54%
+    > Mean return 14.3 (n=10)
+    > loss=0.1223: 100%|██████████| 938/938 [01:33<00:00, 10.03it/s]
+    > Epoch 13, val_loss=0.5071, val_acc=84.78%
+    > Mean return 0.5 (n=10)
+    > loss=0.1176: 100%|██████████| 938/938 [01:33<00:00,  9.99it/s]
+    > Epoch 14, val_loss=3.991, val_acc=23.81%
+    > Mean return 0.7 (n=10)
+    > loss=0.1134: 100%|██████████| 938/938 [01:33<00:00, 10.05it/s]
+    > Epoch 15, val_loss=0.1758, val_acc=93.63%
+    > Mean return 17.7 (n=10)
+    > loss=0.1092: 100%|██████████| 938/938 [01:33<00:00,  9.99it/s]
+    > Epoch 16, val_loss=0.4535, val_acc=83.59%
+    > Mean return 3.6 (n=10)
+    > loss=0.1058: 100%|██████████| 938/938 [01:33<00:00,  9.99it/s]
+    > Epoch 17, val_loss=2.712, val_acc=37.89%
+    > Mean return 0.5 (n=10)
+    > loss=0.1018: 100%|██████████| 938/938 [01:32<00:00, 10.09it/s]
+    > Epoch 18, val_loss=0.5907, val_acc=82.35%
+    > Mean return 0.5 (n=10)
+    > loss=0.0977: 100%|██████████| 938/938 [01:33<00:00,  9.98it/s]
+    > Epoch 19, val_loss=0.5761, val_acc=80.92%
+    > Mean return 3.0 (n=10)
+    > loss=0.09423: 100%|██████████| 938/938 [01:33<00:00, 10.08it/s]
+    > Epoch 20, val_loss=0.7243, val_acc=86.09%
+    > Mean return 1.4 (n=10)
+    > loss=0.09046: 100%|██████████| 938/938 [01:32<00:00, 10.14it/s]
+    > Epoch 21, val_loss=0.2192, val_acc=92.44%
+    > Mean return 27.2 (n=10)
+    > loss=0.08728: 100%|██████████| 938/938 [01:32<00:00, 10.11it/s]
+    > Epoch 22, val_loss=1.086, val_acc=66.81%
+    > Mean return 4.0 (n=10)
+    > loss=0.08372: 100%|██████████| 938/938 [01:33<00:00, 10.07it/s]
+    > Epoch 23, val_loss=0.4594, val_acc=87.06%
+    > Mean return 1.3 (n=10)
+    > loss=0.08035: 100%|██████████| 938/938 [01:32<00:00, 10.14it/s]
+    > Epoch 24, val_loss=0.9743, val_acc=67.74%
+    > Mean return 2.7 (n=10)
+    > loss=0.07681: 100%|██████████| 938/938 [01:32<00:00, 10.18it/s]
+    > Epoch 25, val_loss=1.217, val_acc=63.96%
+    > Mean return 3.4 (n=10)
+    > loss=0.07353: 100%|██████████| 938/938 [01:32<00:00, 10.16it/s]
+    > Epoch 26, val_loss=0.2653, val_acc=90.93%
+    > Mean return 12.0 (n=10)
+    > loss=0.07017: 100%|██████████| 938/938 [01:31<00:00, 10.23it/s]
+    > Epoch 27, val_loss=0.3183, val_acc=89.67%
+    > Mean return 10.8 (n=10)
+    > loss=0.06709: 100%|██████████| 938/938 [01:32<00:00, 10.14it/s]
+    > Epoch 28, val_loss=0.2179, val_acc=93.12%
+    > Mean return 25.9 (n=10)
+    > loss=0.06412: 100%|██████████| 938/938 [01:32<00:00, 10.19it/s]
+    > Epoch 29, val_loss=0.5337, val_acc=87.40%
+    > Mean return 1.3 (n=10)
+    > loss=0.06137: 100%|██████████| 938/938 [01:32<00:00, 10.18it/s]
+    > Epoch 30, val_loss=0.3089, val_acc=90.87%
+    > Mean return 7.8 (n=10)
+    > loss=0.05832: 100%|██████████| 938/938 [01:32<00:00, 10.15it/s]
+    > Epoch 31, val_loss=0.246, val_acc=93.10%
+    > Mean return 23.7 (n=10)
+    > loss=0.05504: 100%|██████████| 938/938 [01:32<00:00, 10.15it/s]
+    > Epoch 32, val_loss=0.2546, val_acc=92.98%
+    > Mean return 62.1 (n=10)
+    > loss=0.05302: 100%|██████████| 938/938 [01:32<00:00, 10.14it/s]
+    > Epoch 33, val_loss=0.265, val_acc=92.27%
+    > Mean return 13.3 (n=10)
+    > loss=0.04998: 100%|██████████| 938/938 [01:32<00:00, 10.12it/s]
+    > Epoch 34, val_loss=0.4808, val_acc=86.64%
+    > Mean return 5.7 (n=10)
+    > loss=0.04753: 100%|██████████| 938/938 [01:32<00:00, 10.15it/s]
+    > Epoch 35, val_loss=2.868, val_acc=51.34%
+    > Mean return 1.7 (n=10)
+    > loss=0.0448: 100%|██████████| 938/938 [01:32<00:00, 10.19it/s]
+    > Epoch 36, val_loss=2.086, val_acc=54.55%
+    > Mean return 0.5 (n=10)
+    > loss=0.04273: 100%|██████████| 938/938 [01:32<00:00, 10.15it/s]
+    > Epoch 37, val_loss=0.4147, val_acc=89.81%
+    > Mean return 5.2 (n=10)
+    > loss=0.0408: 100%|██████████| 938/938 [01:32<00:00, 10.15it/s]
+    > Epoch 38, val_loss=0.9393, val_acc=76.66%
+    > Mean return 5.7 (n=10)
+    > loss=0.03864: 100%|██████████| 938/938 [01:32<00:00, 10.15it/s]
+    > Epoch 39, val_loss=0.2581, val_acc=92.52%
+    > Mean return 69.7 (n=10)
+    > loss=0.03636: 100%|██████████| 938/938 [01:32<00:00, 10.12it/s]
+    > Epoch 40, val_loss=0.3293, val_acc=91.02%
+    > Mean return 9.0 (n=10)
+    > loss=0.03468: 100%|██████████| 938/938 [01:31<00:00, 10.20it/s]
+    > Epoch 41, val_loss=0.2953, val_acc=91.73%
+    > Mean return 19.5 (n=10)
+    > loss=0.03316: 100%|██████████| 938/938 [01:32<00:00, 10.15it/s]
+    > Epoch 42, val_loss=0.2843, val_acc=92.80%
+    > Mean return 65.8 (n=10)
+    > loss=0.03135: 100%|██████████| 938/938 [01:32<00:00, 10.12it/s]
+    > Epoch 43, val_loss=0.2802, val_acc=92.41%
+    > Mean return 7.5 (n=10)
+    > loss=0.03014: 100%|██████████| 938/938 [01:32<00:00, 10.18it/s]
+    > Epoch 44, val_loss=0.4413, val_acc=91.16%
+    > Mean return 10.8 (n=10)
+    > loss=0.02853: 100%|██████████| 938/938 [01:32<00:00, 10.17it/s]
+    > Epoch 45, val_loss=0.2793, val_acc=92.84%
+    > Mean return 60.8 (n=10)
+    > loss=0.02736: 100%|██████████| 938/938 [01:32<00:00, 10.15it/s]
+    > Epoch 46, val_loss=0.301, val_acc=92.97%
+    > Mean return 17.3 (n=10)
+    > loss=0.0259: 100%|██████████| 938/938 [01:32<00:00, 10.15it/s]
+    > Epoch 47, val_loss=0.4634, val_acc=89.30%
+    > Mean return 18.0 (n=10)
+    > loss=0.02465: 100%|██████████| 938/938 [01:32<00:00, 10.15it/s]
+    > Epoch 48, val_loss=0.4939, val_acc=89.54%
+    > Mean return 2.3 (n=10)
+    > loss=0.02412: 100%|██████████| 938/938 [01:32<00:00, 10.10it/s]
+    > Epoch 49, val_loss=0.3671, val_acc=91.84%
+    > Mean return 22.4 (n=10)
+    > loss=0.02288: 100%|██████████| 938/938 [01:32<00:00, 10.17it/s]
+    > Epoch 50, val_loss=0.2625, val_acc=93.67%
+    > Mean return 43.3 (n=10)

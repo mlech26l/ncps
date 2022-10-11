@@ -200,8 +200,75 @@ For the actual training loop we make use of keras high-level `model.fit` functio
         ],
     )
 
+The full source code can be downloaded `here <https://github.com/mlech26l/ncps/blob/master/examples/atari_tf.py>`_
+When running the code we get
+
 .. code-block:: text
 
-    > Output
-
-The full source code can be downloaded `here <todo>`_
+    > Model: "sequential_1"
+    > _________________________________________________________________
+    >  Layer (type)                Output Shape              Param #
+    > =================================================================
+    >  time_distributed (TimeDistr  (None, None, 256)        1440576
+    >  ibuted)
+    >
+    >  cf_c (CfC)                  (None, None, 64)          74112
+    >
+    >  dense (Dense)               (None, None, 4)           260
+    >
+    > =================================================================
+    > Total params: 1,514,948
+    > Trainable params: 1,514,948
+    > Non-trainable params: 0
+    > _________________________________________________________________
+    > Epoch 1/50
+    > 2022-10-11 15:45:55.524895: I tensorflow/stream_executor/cuda/cuda_dnn.cc:384] Loaded cuDNN version 8302
+    > 2022-10-11 15:45:56.037075: I tensorflow/core/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+    > 938/938 [==============================] - ETA: 0s - loss: 0.4964 - sparse_categorical_accuracy: 0.8305
+    > Epoch 0 return: 2.50 +- 1.91
+    > 938/938 [==============================] - 413s 436ms/step - loss: 0.4964 - sparse_categorical_accuracy: 0.8305 - val_loss: 0.3931 - val_sparse_categorical_accuracy: 0.8633
+    > Epoch 2/50
+    > 938/938 [==============================] - ETA: 0s - loss: 0.3521 - sparse_categorical_accuracy: 0.8752
+    > Epoch 1 return: 4.00 +- 3.58
+    > 938/938 [==============================] - 450s 480ms/step - loss: 0.3521 - sparse_categorical_accuracy: 0.8752 - val_loss: 0.3168 - val_sparse_categorical_accuracy: 0.8884
+    > Epoch 3/50
+    > 938/938 [==============================] - ETA: 0s - loss: 0.3009 - sparse_categorical_accuracy: 0.8918
+    > Epoch 2 return: 5.30 +- 3.32
+    > 938/938 [==============================] - 469s 501ms/step - loss: 0.3009 - sparse_categorical_accuracy: 0.8918 - val_loss: 0.2732 - val_sparse_categorical_accuracy: 0.9020
+    > Epoch 4/50
+    > 938/938 [==============================] - ETA: 0s - loss: 0.2690 - sparse_categorical_accuracy: 0.9029
+    > Epoch 3 return: 13.90 +- 9.54
+    > 938/938 [==============================] - 514s 548ms/step - loss: 0.2690 - sparse_categorical_accuracy: 0.9029 - val_loss: 0.2485 - val_sparse_categorical_accuracy: 0.9103
+    > Epoch 5/50
+    > 938/938 [==============================] - ETA: 0s - loss: 0.2501 - sparse_categorical_accuracy: 0.9095
+    > Epoch 4 return: 15.50 +- 14.33
+    > 938/938 [==============================] - 516s 550ms/step - loss: 0.2501 - sparse_categorical_accuracy: 0.9095 - val_loss: 0.2475 - val_sparse_categorical_accuracy: 0.9107
+    > Epoch 6/50
+    > 938/938 [==============================] - ETA: 0s - loss: 0.2361 - sparse_categorical_accuracy: 0.9145
+    > Epoch 5 return: 16.00 +- 12.49
+    > 938/938 [==============================] - 514s 548ms/step - loss: 0.2361 - sparse_categorical_accuracy: 0.9145 - val_loss: 0.2363 - val_sparse_categorical_accuracy: 0.9150
+    > Epoch 7/50
+    > 938/938 [==============================] - ETA: 0s - loss: 0.2257 - sparse_categorical_accuracy: 0.9184
+    > Epoch 6 return: 35.60 +- 30.20
+    > 938/938 [==============================] - 508s 542ms/step - loss: 0.2257 - sparse_categorical_accuracy: 0.9184 - val_loss: 0.2256 - val_sparse_categorical_accuracy: 0.9183
+    > Epoch 8/50
+    > 938/938 [==============================] - ETA: 0s - loss: 0.2173 - sparse_categorical_accuracy: 0.9213
+    > Epoch 7 return: 7.70 +- 5.59
+    > 938/938 [==============================] - 501s 534ms/step - loss: 0.2173 - sparse_categorical_accuracy: 0.9213 - val_loss: 0.2179 - val_sparse_categorical_accuracy: 0.9207
+    > Epoch 9/50
+    > 938/938 [==============================] - ETA: 0s - loss: 0.2095 - sparse_categorical_accuracy: 0.9239
+    > Epoch 8 return: 67.40 +- 81.60
+    > 938/938 [==============================] - 555s 592ms/step - loss: 0.2095 - sparse_categorical_accuracy: 0.9239 - val_loss: 0.2045 - val_sparse_categorical_accuracy: 0.9265
+    > Epoch 10/50
+    > 938/938 [==============================] - ETA: 0s - loss: 0.2032 - sparse_categorical_accuracy: 0.9263
+    > Epoch 9 return: 15.20 +- 12.16
+    > 938/938 [==============================] - 523s 558ms/step - loss: 0.2032 - sparse_categorical_accuracy: 0.9263 - val_loss: 0.1962 - val_sparse_categorical_accuracy: 0.9290
+    > Epoch 11/50
+    > 938/938 [==============================] - ETA: 0s - loss: 0.1983 - sparse_categorical_accuracy: 0.9279
+    > Epoch 10 return: 26.50 +- 27.98
+    > 938/938 [==============================] - 512s 546ms/step - loss: 0.1983 - sparse_categorical_accuracy: 0.9279 - val_loss: 0.2180 - val_sparse_categorical_accuracy: 0.9210
+    > Epoch 12/50
+    > 938/938 [==============================] - ETA: 0s - loss: 0.1926 - sparse_categorical_accuracy: 0.9302
+    > Epoch 11 return: 53.00 +- 79.22
+    > 938/938 [==============================] - 1846s 2s/step - loss: 0.1926 - sparse_categorical_accuracy: 0.9302 - val_loss: 0.1924 - val_sparse_categorical_accuracy: 0.9311
+    > ....

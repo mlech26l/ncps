@@ -1,12 +1,13 @@
+<div align="center"><img src="https://raw.githubusercontent.com/mlech26l/ncps/master/docs/img/banner.png" width="800"/></div>
+
 # Neural Circuit Policies (for PyTorch and TensorFlow)
 
 [![DOI](https://zenodo.org/badge/290199641.svg)](https://zenodo.org/badge/latestdoi/290199641)
 ![ci_badge](https://github.com/mlech26l/ncps/actions/workflows/python-test.yml/badge.svg) 
 ![pyversion](misc/pybadge.svg)
 ![PyPI version](https://img.shields.io/pypi/v/ncps)
-![Documentation Status](https://readthedocs.org/projects/ncps/badge/?version=latest)](https://ncps.readthedocs.io/en/latest/?badge=latest) 
+![Documentation Status](https://readthedocs.org/projects/ncps/badge/?version=latest)
 ![downloads](https://img.shields.io/pypi/dm/ncps)
-
 
 ## Papers
 
@@ -15,14 +16,14 @@
 Neural Circuit Policies (NCPs) are designed sparse recurrent neural networks loosely inspired by the nervous system of the organism [C. elegans](http://www.wormbook.org/chapters/www_celegansintro/celegansintro.html). 
 The goal of this package is to making working with NCPs in PyTorch and keras as easy as possible.
 
-![alt](misc/wirings.png)
-
+[Documentation](https://ncps.readthedocs.io/en/latest/index.html)
 
 ## Installation
 
 ```bash
 pip install ncps
 ```
+
 
 ## Update January 2021: Experimental PyTorch support added
 
