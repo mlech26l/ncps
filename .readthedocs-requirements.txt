@@ -8,3 +8,5 @@ tqdm
 distributed
 sphinx-copybutton
 furo
+torch
+tensorflow

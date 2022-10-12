@@ -5,11 +5,11 @@ PyTorch (nn.modules)
 
 .. automodule:: ncps.torch
 
-.. autoclass:: ncps.torch.CfC
+.. autoclass:: CfC
    :members:
 
-.. autoclass:: ncps.torch.CfCCell
+.. autoclass:: CfCCell
    :members:
 
-.. autoclass:: ncps.torch.LTCCell
+.. autoclass:: LTCCell
    :members:

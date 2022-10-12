@@ -5,7 +5,7 @@ In this guide, we will train an NCP to play Atari.
 Instead of learning a policy via reinforcement learning (which can be a bit complex), we will
 make use of an pretrained expert policy that the NCP should copy using supervised learning (i.e., behavior cloning).
 
-.. image:: ./img/breakout.webp
+.. image:: ../img/breakout.webp
    :align: center
 
 
@@ -20,7 +20,7 @@ Before we start, we need to install some packages
 Dataloader
 -------------------------------------
 First, we define the Atari environment and the dataset.
-We have to wrap the environment with the Deepmind helper functions, which apply the following transformations:
+We have to wrap the environment with the helper functions proposed in `DeepMind's Atari Nature paper <https://www.nature.com/articles/nature14236>`_, which apply the following transformations:
 
 * Downscales the Atari frames to 84-by-84 pixels
 * Converts the frames to grayscale

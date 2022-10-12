@@ -5,11 +5,11 @@ Tensorflow (tf.keras Layers)
 
 .. automodule:: ncps.tf
 
-.. autoclass:: ncps.torch.CfC
+.. autoclass:: CfC
    :members:
 
-.. autoclass:: ncps.torch.CfCCell
+.. autoclass:: CfCCell
    :members:
 
-.. autoclass:: ncps.torch.LTCCell
+.. autoclass:: LTCCell
    :members:

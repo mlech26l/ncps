@@ -15,10 +15,8 @@ User’s Guide
 --------------
 
 .. toctree::
+   :maxdepth: 2
 
     quickstart
     examples/index
     api/index
-
-
-(C) 2022 Mathias Lechner

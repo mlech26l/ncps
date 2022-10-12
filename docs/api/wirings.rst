@@ -3,14 +3,14 @@ Wirings
 
 .. module:: ncps.wirings
 
-.. autoclass:: ncps.wirings.Wiring
+.. autoclass:: Wiring
    :members:
 
-.. autoclass:: ncps.wirings.NCP
+.. autoclass:: NCP
    :members:
 
-.. autoclass:: ncps.wirings.FullyConnected
+.. autoclass:: FullyConnected
    :members:
 
-.. autoclass:: ncps.wirings.Random
+.. autoclass:: Random
    :members:
