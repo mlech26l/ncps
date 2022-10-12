@@ -131,6 +131,7 @@ if __name__ == "__main__":
     )
 
     # Visualize Atari game and play endlessly
+    stateful_model.set_weights(model.get_weights())
     env = gym.make("ALE/Breakout-v5", render_mode="human")
     env = wrap_deepmind(env)
-    run_closed_loop(model, env)
+    run_closed_loop(model, env, rnn_to_reset=stateful_rnn)

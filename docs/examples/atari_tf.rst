@@ -1,7 +1,7 @@
-Playing Atari with an NCP and behavior cloning (TensorFlow)
+Atari behavior cloning with TensorFlow
 =========================
 
-In this guide, we will train a NCP to play Atari.
+In this guide, we will train an NCP to play Atari.
 Instead of learning a policy via reinforcement learning (which can be a bit complex), we will
 make use of an pretrained expert policy that the NCP should copy using supervised learning (i.e., behavior cloning).
 
@@ -200,8 +200,22 @@ For the actual training loop we make use of keras high-level `model.fit` functio
         ],
     )
 
+After the training is completed we can display in a window how the model plays the game.
+
+.. code-block:: python
+
+    # Visualize Atari game and play endlessly
+    stateful_model.set_weights(model.get_weights())
+    env = gym.make("ALE/Breakout-v5", render_mode="human")
+    env = wrap_deepmind(env)
+    run_closed_loop(model, env, rnn_to_reset=stateful_rnn)
+
 The full source code can be downloaded `here <https://github.com/mlech26l/ncps/blob/master/examples/atari_tf.py>`_
-When running the code we get
+
+.. note::
+    At a validation accuracy of about 92% the behavior cloning data usually implies a decent closed-loop performance of the cloned agent
+
+The output of the full script is something like:
 
 .. code-block:: text
 

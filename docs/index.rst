@@ -16,8 +16,8 @@ User’s Guide
 
 .. toctree::
 
-    atari_torch
-    atari_tf
+    quickstart
+    examples/index
     api/index
 
 

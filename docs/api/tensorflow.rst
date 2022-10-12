@@ -1,15 +1,15 @@
 .. torch-api-label:
 
-Tensorflow (keras Layers)
+Tensorflow (tf.keras Layers)
 ------------------
 
 .. automodule:: ncps.tf
 
-.. autoclass:: CfC
+.. autoclass:: ncps.torch.CfC
    :members:
 
-.. autoclass:: CfCCell
+.. autoclass:: ncps.torch.CfCCell
    :members:
 
-.. autoclass:: LTCCell
+.. autoclass:: ncps.torch.LTCCell
    :members:

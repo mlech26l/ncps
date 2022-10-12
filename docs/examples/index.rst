@@ -1,11 +1,10 @@
 :hide-toc:
 
-API Reference
+Examples
 ##########################
 
 .. toctree::
     :titlesonly:
 
-    torch
-    tensorflow
-    wirings
+    atari_tf.rst
+    atari_torch.rst

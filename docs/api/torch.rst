@@ -1,15 +1,15 @@
 .. torch-api-label:
 
-PyTorch nn.modules
+PyTorch (nn.modules)
 ------------------
 
 .. automodule:: ncps.torch
 
-.. autoclass:: CfC
+.. autoclass:: ncps.torch.CfC
    :members:
 
-.. autoclass:: CfCCell
+.. autoclass:: ncps.torch.CfCCell
    :members:
 
-.. autoclass:: LTCCell
+.. autoclass:: ncps.torch.LTCCell
    :members:
