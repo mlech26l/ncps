@@ -208,7 +208,7 @@ After the training is completed we can display in a window how the model plays t
     stateful_model.set_weights(model.get_weights())
     env = gym.make("ALE/Breakout-v5", render_mode="human")
     env = wrap_deepmind(env)
-    run_closed_loop(model, env, rnn_to_reset=stateful_rnn)
+    run_closed_loop(stateful_model, env, rnn_to_reset=stateful_rnn)
 
 The full source code can be downloaded `here <https://github.com/mlech26l/ncps/blob/master/examples/atari_tf.py>`_
 
