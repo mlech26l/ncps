@@ -21,26 +21,71 @@ import numpy as np
 from ncps.datasets.tf import AtariCloningDatasetTF
 
 
-def run_closed_loop(model, env, num_episodes=None, rnn_to_reset=None):
+class ConvCfC(tf.keras.Model):
+    def __init__(self, n_actions):
+        super().__init__()
+        self.conv_block = tf.keras.models.Sequential(
+            [
+                tf.keras.Input((84, 84, 4)),
+                tf.keras.layers.Lambda(
+                    lambda x: tf.cast(x, tf.float32) / 255.0
+                ),  # normalize input
+                tf.keras.layers.Conv2D(
+                    64, 5, padding="same", activation="relu", strides=2
+                ),
+                tf.keras.layers.Conv2D(
+                    128, 5, padding="same", activation="relu", strides=2
+                ),
+                tf.keras.layers.Conv2D(
+                    128, 5, padding="same", activation="relu", strides=2
+                ),
+                tf.keras.layers.Conv2D(
+                    256, 5, padding="same", activation="relu", strides=2
+                ),
+                tf.keras.layers.GlobalAveragePooling2D(),
+            ]
+        )
+        self.td_conv = tf.keras.layers.TimeDistributed(self.conv_block)
+        self.rnn = CfC(64, return_sequences=True, return_state=True)
+        self.linear = tf.keras.layers.Dense(n_actions)
+
+    def get_initial_states(self, batch_size=1):
+        return self.rnn.cell.get_initial_state(batch_size=batch_size, dtype=tf.float32)
+
+    def call(self, x, training=None, **kwargs):
+        has_hx = isinstance(x, list) or isinstance(x, tuple)
+        initial_state = None
+        if has_hx:
+            # additional inputs are passed as a tuple
+            x, initial_state = x
+
+        x = self.td_conv(x, training=training)
+        x, next_state = self.rnn(x, initial_state=initial_state)
+        x = self.linear(x)
+        if has_hx:
+            return (x, next_state)
+        return x
+
+
+def run_closed_loop(model, env, num_episodes=None):
     obs = env.reset()
-    if rnn_to_reset is not None:
-        rnn_to_reset.reset_states()
+    hx = model.get_initial_states()
     returns = []
     total_reward = 0
     while True:
         # add batch and time dimension (with a single element in each)
         obs = np.expand_dims(np.expand_dims(obs, 0), 0)
-        pred = model.predict(obs, verbose=0)
-        action = pred[0, 0].argmax()  # remove time and batch dimension -> then argmax
+        pred, hx = model.predict((obs, hx), verbose=0)
+        action = pred[0, 0].argmax()
+        # remove time and batch dimension -> then argmax
         obs, r, done, _ = env.step(action)
         total_reward += r
         if done:
             returns.append(total_reward)
             total_reward = 0
             obs = env.reset()
+            hx = model.get_initial_states()
             # Reset RNN hidden states when episode is over
-            if rnn_to_reset is not None:
-                rnn_to_reset.reset_states()
             if num_episodes is not None:
                 # Count down the number of episodes
                 num_episodes = num_episodes - 1
@@ -49,21 +94,13 @@ def run_closed_loop(model, env, num_episodes=None, rnn_to_reset=None):
 
 
 class ClosedLoopCallback(tf.keras.callbacks.Callback):
-    def __init__(self, stateless_model, stateful_model, env, rnn_to_reset):
-        self.stateless_model = stateless_model
-        self.stateful_model = stateful_model
+    def __init__(self, model, env):
+        super().__init__()
+        self.model = model
         self.env = env
-        self.rnn_to_reset = rnn_to_reset
 
     def on_epoch_end(self, epoch, logs=None):
-        # Copy weights from stateless model into stateful model
-        self.stateful_model.set_weights(self.stateless_model.get_weights())
-        r = run_closed_loop(
-            self.stateful_model,
-            self.env,
-            num_episodes=10,
-            rnn_to_reset=self.rnn_to_reset,
-        )
+        r = run_closed_loop(self.model, self.env, num_episodes=10)
         print(f"\nEpoch {epoch} return: {np.mean(r):0.2f} +- {np.std(r):0.2f}")
 
 
@@ -77,61 +114,23 @@ if __name__ == "__main__":
     trainloader = data.get_dataset(32, split="train")
     valloader = data.get_dataset(32, split="val")
 
-    conv_block = tf.keras.models.Sequential(
-        [
-            tf.keras.Input((84, 84, 4)),
-            tf.keras.layers.Lambda(
-                lambda x: tf.cast(x, tf.float32) / 255.0
-            ),  # normalize input
-            tf.keras.layers.Conv2D(64, 5, padding="same", activation="relu", strides=2),
-            tf.keras.layers.Conv2D(
-                128, 5, padding="same", activation="relu", strides=2
-            ),
-            tf.keras.layers.Conv2D(
-                128, 5, padding="same", activation="relu", strides=2
-            ),
-            tf.keras.layers.Conv2D(
-                256, 5, padding="same", activation="relu", strides=2
-            ),
-            tf.keras.layers.GlobalAveragePooling2D(),
-        ]
-    )
-    conv_block.build((None, 84, 84, 4))
-    model = tf.keras.models.Sequential(
-        [
-            tf.keras.Input((None, 84, 84, 4)),
-            tf.keras.layers.TimeDistributed(conv_block),
-            CfC(64, return_sequences=True, stateful=False),
-            tf.keras.layers.Dense(env.action_space.n),
-        ]
-    )
-    stateful_rnn = CfC(64, return_sequences=True, stateful=True)
-    stateful_model = tf.keras.models.Sequential(
-        [
-            tf.keras.Input((None, 84, 84, 4), batch_size=1),
-            tf.keras.layers.TimeDistributed(conv_block),
-            stateful_rnn,
-            tf.keras.layers.Dense(env.action_space.n),
-        ]
-    )
+    model = ConvCfC(env.action_space.n)
 
     model.compile(
         loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
         optimizer=tf.keras.optimizers.Adam(0.0001),
         metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
     )
+    model.build((None, None, 84, 84, 4))
     model.summary()
     model.fit(
         trainloader,
         epochs=50,
         validation_data=valloader,
-        callbacks=[
-            ClosedLoopCallback(model, stateful_model, env, rnn_to_reset=stateful_rnn)
-        ],
+        callbacks=[ClosedLoopCallback(model, env)],
     )
 
     # Visualize Atari game and play endlessly
-    stateful_model.set_weights(model.get_weights())
     env = gym.make("ALE/Breakout-v5", render_mode="human")
     env = wrap_deepmind(env)
-    run_closed_loop(stateful_model, env, rnn_to_reset=stateful_rnn)
+    run_closed_loop(model, env)

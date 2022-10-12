@@ -15,6 +15,8 @@ def py_load(x):
 
 def load_fn(x):
     x, y = tf.py_function(func=py_load, inp=[x], Tout=[tf.uint8, tf.int64])
+    x = tf.ensure_shape(x, (32, 84, 84, 4))
+    y = tf.ensure_shape(y, (32))
     return x, y
 
 
