@@ -1,7 +1,7 @@
 .. torch-api-label:
 
 PyTorch (nn.modules)
-------------------
+--------------------------
 
 .. automodule:: ncps.torch
 

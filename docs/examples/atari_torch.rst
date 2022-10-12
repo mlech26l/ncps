@@ -1,5 +1,5 @@
 Atari behavior cloning with PyTorch
-=========================
+================================================
 
 In this guide, we will train an NCP to play Atari.
 Instead of learning a policy via reinforcement learning (which can be a bit complex), we will

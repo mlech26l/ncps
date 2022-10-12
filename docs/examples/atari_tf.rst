@@ -1,5 +1,5 @@
 Atari behavior cloning with TensorFlow
-=========================
+================================================
 
 In this guide, we will train an NCP to play Atari.
 Instead of learning a policy via reinforcement learning (which can be a bit complex), we will
@@ -156,7 +156,7 @@ There are two subtleties we need to take care of:
                         return returns
 
 Evaluating the closed-loop performance during training
--------------------------------------
+----------------------------------------------------------
 During the training, we measure only offline performance in the form of the training and validation accuracy.
 However, we also want to check after every training epoch how the cloned network is performing when applied the closed-loop environment.
 To this end, we have to define a keras callback that is invoked after every training epoch and implement the closed-loop evaluation.

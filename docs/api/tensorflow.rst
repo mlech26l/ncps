@@ -1,7 +1,7 @@
 .. torch-api-label:
 
 Tensorflow (tf.keras Layers)
-------------------
+----------------------------
 
 .. automodule:: ncps.tf
 
