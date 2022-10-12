@@ -30,8 +30,8 @@ setup(
     install_requires=[
         "packaging",
         "future",
-        "networkx",
-        "matplotlib",
+        # "networkx",
+        # "matplotlib",
     ],
     classifiers=[
         "Programming Language :: Python",

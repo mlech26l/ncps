@@ -29,7 +29,7 @@ version = ""
 release = "0.0.1"
 
 html_favicon = "img/ncp_32.ico"
-needs_sphinx = "3.0"
+needs_sphinx = "4.0"
 
 # -- General configuration ---------------------------------------------------
 
@@ -61,6 +61,14 @@ master_doc = "index"
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "friendly"
 autodoc_typehints = "description"
+autoclass_content = "init"
+autodoc_inherit_docstrings = False
+autodoc_default_options = {
+    # "members": True,
+    "undoc-members": False,
+    "member-order": "bysource",
+    "show-inheritance": True,
+}
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for

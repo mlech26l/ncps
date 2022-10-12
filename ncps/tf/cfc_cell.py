@@ -39,18 +39,17 @@ class CfCCell(tf.keras.layers.AbstractRNNCell):
     ):
         """
 
-        Args:
-            units: Number of hidden units
-            input_sparsity:
-            recurrent_sparsity:
-            mode: Either "default", "pure" (direct solution approximation), or "no_gate" (without second gate).
-            activation: Activation function used in the backbone layers
-            backbone_units: Number of hidden units in the backbone layer (default 128)
-            backbone_layers: Number of backbone layers (default 1)
-            backbone_dropout: Dropout rate in the backbone layers (default 0)
-            **kwargs:
+        :param units: Number of hidden units
+        :param input_sparsity:
+        :param recurrent_sparsity:
+        :param mode: Either "default", "pure" (direct solution approximation), or "no_gate" (without second gate).
+        :param activation: Activation function used in the backbone layers
+        :param backbone_units: Number of hidden units in the backbone layer (default 128)
+        :param backbone_layers: Number of backbone layers (default 1)
+        :param backbone_dropout: Dropout rate in the backbone layers (default 0)
+        :param kwargs:
         """
-        super(CfCCell, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.units = units
         self.sparsity_mask = None
         if input_sparsity is not None or recurrent_sparsity is not None:

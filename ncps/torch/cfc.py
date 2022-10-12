@@ -62,7 +62,7 @@ class LSTMCell(nn.Module):
 class CfC(nn.Module):
     def __init__(
         self,
-        input_size,
+        input_size: int,
         units,
         proj_size: Optional[int] = None,
         return_sequences: bool = True,
@@ -76,18 +76,17 @@ class CfC(nn.Module):
     ):
         """Applies a `Closed-form Continuous-time <https://arxiv.org/abs/2106.13898>`_ RNN to an input sequence.
 
-        Args:
-            input_size:
-            units: Number of hidden units
-            proj_size: If not None, the output of the RNN will be projected to a tensor with dimension proj_size (i.e., an implict linear output layer)
-            return_sequences: Whether to return the full sequence or just the last output
-            batch_first: Whether the batch or time dimension is the first (0-th) dimension
-            mixed_memory: Whether to augment the RNN by a `memory-cell <https://arxiv.org/abs/2006.04418>`_ to help learn long-term dependencies in the data
-            mode: Either "default", "pure" (direct solution approximation), or "no_gate" (without second gate).
-            activation: Activation function used in the backbone layers
-            backbone_units: Number of hidden units in the backbone layer (default 128)
-            backbone_layers: Number of backbone layers (default 1)
-            backbone_dropout: Dropout rate in the backbone layers (default 0)
+        :param input_size:
+        :param units: Number of hidden units
+        :param proj_size: If not None, the output of the RNN will be projected to a tensor with dimension proj_size (i.e., an implict linear output layer)
+        :param return_sequences: Whether to return the full sequence or just the last output
+        :param batch_first: Whether the batch or time dimension is the first (0-th) dimension
+        :param mixed_memory: Whether to augment the RNN by a `memory-cell <https://arxiv.org/abs/2006.04418>`_ to help learn long-term dependencies in the data
+        :param mode: Either "default", "pure" (direct solution approximation), or "no_gate" (without second gate).
+        :param activation: Activation function used in the backbone layers
+        :param backbone_units: Number of hidden units in the backbone layer (default 128)
+        :param backbone_layers: Number of backbone layers (default 1)
+        :param backbone_dropout: Dropout rate in the backbone layers (default 0)
         """
 
         super(CfC, self).__init__()
@@ -98,6 +97,7 @@ class CfC(nn.Module):
         self.return_sequences = return_sequences
 
         if isinstance(units, ncps.wirings.Wiring):
+            raise NotImplementedError()
             self.wired_mode = True
             if backbone_units is not None:
                 raise ValueError(f"Cannot use backbone_units in wired mode")
@@ -106,7 +106,6 @@ class CfC(nn.Module):
             if backbone_dropout is not None:
                 raise ValueError(f"Cannot use backbone_dropout in wired mode")
             # self.rnn_cell = WiredCfCCell(input_size, wiring_or_hidden_size)
-            raise NotImplementedError()
             self.wiring = units
             self.hidden_size = self.wiring.units
             self.output_size = self.wiring.output_dim
@@ -136,6 +135,13 @@ class CfC(nn.Module):
             self.fc = nn.Linear(self.output_size, self.proj_size)
 
     def forward(self, input, hx=None, timespans=None):
+        """
+
+        :param input: Input tensor of shape (L,C) in batchless mode, or (B,L,C) if batch_first was set to True and (L,B,C) if batch_first is False
+        :param hx: Initial hidden state of the RNN of shape (B,H) if mixed_memory is False and a tuple ((B,H),(B,H)) if mixed_memory is True. If None, the hidden states are initialized with all zeros.
+        :param timespans:
+        :return: A pair (output, hx), where output and hx the final hidden state of the RNN
+        """
         device = input.device
         is_batched = input.dim() == 3
         batch_dim = 0 if self.batch_first else 1

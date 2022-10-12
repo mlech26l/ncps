@@ -21,9 +21,10 @@ from typing import Optional, Union
 @tf.keras.utils.register_keras_serializable(package="ncps", name="MixedMemoryRNN")
 class MixedMemoryRNN(tf.keras.layers.AbstractRNNCell):
     def __init__(self, rnn_cell, forget_gate_bias=1.0, **kwargs):
+        super().__init__(**kwargs)
+
         self.rnn_cell = rnn_cell
         self.forget_gate_bias = forget_gate_bias
-        super(MixedMemoryRNN, self).__init__(**kwargs)
 
     @property
     def state_size(self):

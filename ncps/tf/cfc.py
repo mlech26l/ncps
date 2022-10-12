@@ -39,30 +39,30 @@ class CfC(tf.keras.layers.RNN):
     ):
         """Applies a `Closed-form Continuous-time <https://arxiv.org/abs/2106.13898>`_ RNN to an input sequence.
 
-        Args:
-            units: Number of hidden units
-            mixed_memory: Whether to augment the RNN by a `memory-cell <https://arxiv.org/abs/2006.04418>`_ to help learn long-term dependencies in the data
-            mode: Either "default", "pure" (direct solution approximation), or "no_gate" (without second gate).
-            activation: Activation function used in the backbone layers
-            backbone_units: Number of hidden units in the backbone layer (default 128)
-            backbone_layers: Number of backbone layers (default 1)
-            backbone_dropout: Dropout rate in the backbone layers (default 0)
-            return_sequences: Whether to return the full sequence or just the last output
-            return_state: Whether to return just the output of the RNN or a tuple (output, last_hidden_state)
-            go_backwards:
-            stateful: Whether to remember the last hidden state of the previous inference/training batch and use it as initial state for the next inference/training batch
-            unroll:
-            time_major: Whether the time or batch dimension is the first (0-th) dimension
-            **kwargs:
+        :param units: Number of hidden units
+        :param mixed_memory: Whether to augment the RNN by a `memory-cell <https://arxiv.org/abs/2006.04418>`_ to help learn long-term dependencies in the data
+        :param mode: Either "default", "pure" (direct solution approximation), or "no_gate" (without second gate).
+        :param activation: Activation function used in the backbone layers
+        :param backbone_units: Number of hidden units in the backbone layer (default 128)
+        :param backbone_layers: Number of backbone layers (default 1)
+        :param backbone_dropout: Dropout rate in the backbone layers (default 0)
+        :param return_sequences: Whether to return the full sequence or just the last output
+        :param return_state: Whether to return just the output of the RNN or a tuple (output, last_hidden_state)
+        :param go_backwards:
+        :param stateful: Whether to remember the last hidden state of the previous inference/training batch and use it as initial state for the next inference/training batch
+        :param unroll:
+        :param time_major: Whether the time or batch dimension is the first (0-th) dimension
+        :param kwargs:
         """
+
         if isinstance(units, ncps.wirings.Wiring):
+            raise NotImplementedError()
             if backbone_units is not None:
                 raise ValueError(f"Cannot use backbone_units in wired mode")
             if backbone_layers is not None:
                 raise ValueError(f"Cannot use backbone_layers in wired mode")
             if backbone_dropout is not None:
                 raise ValueError(f"Cannot use backbone_dropout in wired mode")
-            raise NotImplementedError()
             # cell = WiredCfCCell(wiring_or_units, mode=mode, activation=activation)
         else:
             backbone_units = 128 if backbone_units is None else backbone_units
@@ -86,4 +86,5 @@ class CfC(tf.keras.layers.RNN):
             stateful,
             unroll,
             time_major,
+            **kwargs,
         )
