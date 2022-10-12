@@ -9,7 +9,7 @@ class AtariCloningDataset(Dataset):
     def __init__(self, env_name, split="train", root_dir="."):
         path = Path(root_dir) / "data_atari_seq" / env_name
         if not path.exists():
-            print("Downloading data ... ", end="")
+            print("Downloading data ... ", end="", flush=True)
             download_and_unzip(
                 f"https://people.csail.mit.edu/mlechner/datasets/{env_name}.zip"
             )
