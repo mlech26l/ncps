@@ -30,18 +30,12 @@ class LTCCell(tf.keras.layers.AbstractRNNCell):
         initialization_ranges=None,
         **kwargs
     ):
-        """A liquid time-constant (LTC) cell.
-
-        :param wiring:
-        :param input_mapping:
-        :param output_mapping:
-        :param ode_unfolds:
-        :param epsilon:
-        :param initialization_ranges:
-        :param kwargs:
+        """A `Liquid time-constant (LTC) <https://ojs.aaai.org/index.php/AAAI/article/view/16936>`_ cell.
 
         .. Note::
-            This is an RNNCell that process single time-steps. To get a full RNN that can process sequences, you need to wrap it with a `tf.keras.layers.RNN <https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN>`_.
+            This is an RNNCell that process single time-steps.
+            To get a full RNN that can process sequences,
+            see `ncps.tf.LTC` or wrap the cell with a `tf.keras.layers.RNN <https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN>`_.
 
         Examples::
 
@@ -58,7 +52,13 @@ class LTCCell(tf.keras.layers.AbstractRNNCell):
              >>> x_seq = tf.random.uniform((1,20,4)) # (batch, time, features)
              >>> y_seq = rnn(x_seq)
 
-
+        :param wiring:
+        :param input_mapping:
+        :param output_mapping:
+        :param ode_unfolds:
+        :param epsilon:
+        :param initialization_ranges:
+        :param kwargs:
         """
 
         super().__init__(**kwargs)

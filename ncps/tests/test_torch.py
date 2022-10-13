@@ -17,8 +17,9 @@ import sys
 import time
 import pytest
 import torch
-from ncps.torch import CfC, LTCCell
+from ncps.torch import CfC, LTCCell, LTC
 import ncps
+
 
 def test_ncps():
     input_size = 8
@@ -26,10 +27,11 @@ def test_ncps():
     wiring = ncps.wirings.FullyConnected(8, 4)  # 16 units, 8 motor neurons
     ltc_cell = LTCCell(wiring, input_size)
     input = torch.randn(3, input_size)
-    hx = torch.zeros(3,wiring.units)
-    output, hx = ltc_cell(input,hx)
-    assert output.size() == (3,4)
-    assert hx.size() == (3,wiring.units)
+    hx = torch.zeros(3, wiring.units)
+    output, hx = ltc_cell(input, hx)
+    assert output.size() == (3, 4)
+    assert hx.size() == (3, wiring.units)
+
 
 def test_default():
     input_size = 8
@@ -73,7 +75,46 @@ def test_unbatched_2():
     rnn = CfC(input_size, hidden_size, batch_first=False)
     input = torch.randn(3, input_size)
     output, hx = rnn(input)
-    assert output.size() == (3, 32)
+    assert output.size() == (3, hidden_size)
+
+
+def test_ltc_1():
+    input_size = 8
+    hidden_size = 32
+    rnn = LTC(input_size, hidden_size, batch_first=True)
+    input = torch.randn(5, 3, input_size)
+    output, hx = rnn(input)
+    assert output.size() == (5, 3, hidden_size)
+
+
+def test_ltc_batch_first():
+    input_size = 8
+    hidden_size = 32
+    rnn = LTC(input_size, hidden_size, batch_first=False)
+    input = torch.randn(5, 3, input_size)
+    output, hx = rnn(input)
+    assert output.size() == (5, 3, 32)
+    assert hx.size() == (3, 32)
+
+
+def test_ncp_1():
+    input_size = 8
+    wiring = ncps.wirings.NCP(10, 10, 8, 6, 6, 4, 6)
+    rnn = LTC(input_size, wiring, batch_first=True)
+    input = torch.randn(5, 3, input_size)
+    output, hx = rnn(input)
+    assert output.size() == (5, 3, 8)
+    assert hx.size() == (5, 10 + 10 + 8)
+
+
+def test_ncp_2():
+    input_size = 8
+    wiring = ncps.wirings.NCP(10, 10, 8, 6, 6, 4, 6)
+    rnn = LTC(input_size, wiring, batch_first=False)
+    input = torch.randn(5, 3, input_size)
+    output, hx = rnn(input)
+    assert output.size() == (5, 3, 8)
+    assert hx.size() == (3, 10 + 10 + 8)
 
     # def __init__(
     #         self,

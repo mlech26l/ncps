@@ -37,7 +37,13 @@ class CfCCell(tf.keras.layers.AbstractRNNCell):
         backbone_dropout=0.1,
         **kwargs,
     ):
-        """
+        """A `Closed-form Continuous-time <https://arxiv.org/abs/2106.13898>`_ cell.
+
+        .. Note::
+            This is an RNNCell that process single time-steps.
+            To get a full RNN that can process sequences,
+            see `ncps.tf.CfC` or wrap the cell with a `tf.keras.layers.RNN <https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN>`_.
+
 
         :param units: Number of hidden units
         :param input_sparsity:

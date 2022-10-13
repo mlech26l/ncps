@@ -39,6 +39,14 @@ class CfC(tf.keras.layers.RNN):
     ):
         """Applies a `Closed-form Continuous-time <https://arxiv.org/abs/2106.13898>`_ RNN to an input sequence.
 
+        Examples::
+
+            >>> from ncps.tf import CfC
+            >>>
+            >>> rnn = CfC(50)
+            >>> x = tf.random.uniform((2, 10, 20))  # (B,L,C)
+            >>> y = rnn(x)
+
         :param units: Number of hidden units
         :param mixed_memory: Whether to augment the RNN by a `memory-cell <https://arxiv.org/abs/2006.04418>`_ to help learn long-term dependencies in the data
         :param mode: Either "default", "pure" (direct solution approximation), or "no_gate" (without second gate).

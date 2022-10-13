@@ -29,6 +29,20 @@ class LTCCell(nn.Module):
         epsilon=1e-8,
         implicit_param_constraints=False,
     ):
+        """A `Liquid time-constant (LTC) <https://ojs.aaai.org/index.php/AAAI/article/view/16936>`_ cell.
+
+        .. Note::
+            This is an RNNCell that process single time-steps. To get a full RNN that can process sequences see `ncps.torch.LTC`.
+
+
+        :param wiring:
+        :param in_features:
+        :param input_mapping:
+        :param output_mapping:
+        :param ode_unfolds:
+        :param epsilon:
+        :param implicit_param_constraints:
+        """
         super(LTCCell, self).__init__()
         if in_features is not None:
             wiring.build(in_features)
@@ -262,9 +276,8 @@ class LTCCell(nn.Module):
             self._params["cm"].data = self._clip(self._params["cm"].data)
             self._params["gleak"].data = self._clip(self._params["gleak"].data)
 
-    def forward(self, inputs, states):
+    def forward(self, inputs, states, elapsed_time=1.0):
         # Regularly sampled mode (elapsed time = 1 second)
-        elapsed_time = 1.0
         inputs = self._map_inputs(inputs)
 
         next_state = self._ode_solver(inputs, states, elapsed_time)

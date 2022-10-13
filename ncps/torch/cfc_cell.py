@@ -45,18 +45,23 @@ class CfCCell(nn.Module):
         backbone_dropout=0.0,
         sparsity_mask=None,
     ):
+        """A `Closed-form Continuous-time <https://arxiv.org/abs/2106.13898>`_ cell.
+
+        .. Note::
+            This is an RNNCell that process single time-steps. To get a full RNN that can process sequences see `ncps.torch.CfC`.
+
+
+
+        :param input_size:
+        :param hidden_size:
+        :param mode:
+        :param backbone_activation:
+        :param backbone_units:
+        :param backbone_layers:
+        :param backbone_dropout:
+        :param sparsity_mask:
         """
 
-        Args:
-            input_size:
-            hidden_size:
-            mode:
-            backbone_activation:
-            backbone_units:
-            backbone_layers:
-            backbone_dropout:
-            sparsity_mask:
-        """
         super(CfCCell, self).__init__()
 
         self.input_size = input_size

@@ -17,8 +17,9 @@ import time
 import pytest
 import numpy as np
 import tensorflow as tf
-from ncps.tf import CfC, LTCCell
+from ncps.tf import CfC, LTCCell, LTC
 from ncps import wirings
+
 
 def test_fc():
     N = 48  # Length of the time-series
@@ -43,6 +44,7 @@ def test_fc():
     model.compile(optimizer=tf.keras.optimizers.Adam(0.01), loss="mean_squared_error")
     model.fit(x=data_x, y=data_y, batch_size=1, epochs=3)
 
+
 def test_random():
     N = 48  # Length of the time-series
     # Input feature is a sine and a cosine wave
@@ -64,6 +66,7 @@ def test_random():
     )
     model.compile(optimizer=tf.keras.optimizers.Adam(0.01), loss="mean_squared_error")
     model.fit(x=data_x, y=data_y, batch_size=1, epochs=3)
+
 
 def test_ncp():
     N = 48  # Length of the time-series
@@ -137,6 +140,60 @@ def test_mm_rnn():
             tf.keras.layers.InputLayer(input_shape=(None, 2)),
             rnn,
             tf.keras.layers.Dense(1),
+        ]
+    )
+    model.compile(optimizer=tf.keras.optimizers.Adam(0.01), loss="mean_squared_error")
+    model.fit(x=data_x, y=data_y, batch_size=1, epochs=3)
+
+
+def test_ncp_rnn():
+    N = 48  # Length of the time-series
+    # Input feature is a sine and a cosine wave
+    data_x = np.stack(
+        [np.sin(np.linspace(0, 3 * np.pi, N)), np.cos(np.linspace(0, 3 * np.pi, N))],
+        axis=1,
+    )
+    data_x = np.expand_dims(data_x, axis=0).astype(np.float32)  # Add batch dimension
+    # Target output is a sine with double the frequency of the input signal
+    data_y = np.sin(np.linspace(0, 6 * np.pi, N)).reshape([1, N, 1]).astype(np.float32)
+    ncp_wiring = wirings.NCP(
+        inter_neurons=20,  # Number of inter neurons
+        command_neurons=10,  # Number of command neurons
+        motor_neurons=1,  # Number of motor neurons
+        sensory_fanout=4,  # How many outgoing synapses has each sensory neuron
+        inter_fanout=5,  # How many outgoing synapses has each inter neuron
+        recurrent_command_synapses=6,  # Now many recurrent synapses are in the
+        # command neuron layer
+        motor_fanin=4,  # How many incoming synapses has each motor neuron
+    )
+    ltc = LTC(ncp_wiring, return_sequences=True)
+
+    model = tf.keras.models.Sequential(
+        [
+            tf.keras.layers.InputLayer(input_shape=(None, 2)),
+            ltc,
+        ]
+    )
+    model.compile(optimizer=tf.keras.optimizers.Adam(0.01), loss="mean_squared_error")
+    model.fit(x=data_x, y=data_y, batch_size=1, epochs=3)
+
+
+def test_ltc_rnn():
+    N = 48  # Length of the time-series
+    # Input feature is a sine and a cosine wave
+    data_x = np.stack(
+        [np.sin(np.linspace(0, 3 * np.pi, N)), np.cos(np.linspace(0, 3 * np.pi, N))],
+        axis=1,
+    )
+    data_x = np.expand_dims(data_x, axis=0).astype(np.float32)  # Add batch dimension
+    # Target output is a sine with double the frequency of the input signal
+    data_y = np.sin(np.linspace(0, 6 * np.pi, N)).reshape([1, N, 1]).astype(np.float32)
+    ltc = LTC(32, return_sequences=True)
+
+    model = tf.keras.models.Sequential(
+        [
+            tf.keras.layers.InputLayer(input_shape=(None, 2)),
+            ltc,
         ]
     )
     model.compile(optimizer=tf.keras.optimizers.Adam(0.01), loss="mean_squared_error")
