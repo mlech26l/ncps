@@ -3,6 +3,10 @@
 PyTorch (nn.modules)
 --------------------------
 
+.. toctree::
+    :maxdepth: 2
+
+
 .. automodule:: ncps.torch
 
 Sequence models

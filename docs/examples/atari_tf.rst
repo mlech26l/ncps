@@ -15,19 +15,19 @@ Before we start, we need to install some packages
 
 .. code-block:: bash
 
-    pip3 install ncps tensorflow ale-py==0.7.4 gym[atari,accept-rom-license]==0.23.1
+    pip3 install ncps tensorflow "ale-py==0.7.4" "ray[rllib]" "gym[atari,accept-rom-license]==0.23.1"
 
 Defining the model
 -------------------------------------
 First, we will define the neural network model.
-The model consists of a convolutional block, followed by a CfC recurrent neural network and a final linear layer.
+The model consists of a convolutional block, followed by a CfC recurrent neural network, and a final linear layer.
 
 We first define a convolutional model that operates over just a batch of images, and then wrap it in a
-`tf.keras.layers.TimeDistributed` layer to apply the same convolutional block to a sequence of images.
+``tf.keras.layers.TimeDistributed`` layer to apply the same convolutional block to a sequence of images.
 When we apply the model in a closed-loop setting, we need some mechanisms to *remember* the hidden state, i.e., use the final hidden state of the previous data batch as the initial values of the hidden state for the current data batch.
-This is implemented by implementing two different inference modes of the model
+This is implemented by implementing two different inference modes of the model:
 
-#. A training mode, where we have a single input tensor (batch of sequences of images) and predicts a single output tensor
+#. A training mode, where we have a single input tensor (batch of sequences of images) and predicts a single output tensor.
 #. A stateful mode, where the input and output are pairs, containing the initial state of the RNN and the final state of the RNN in the input and output as second element respectively.
 
 .. code-block:: python
@@ -37,49 +37,49 @@ This is implemented by implementing two different inference modes of the model
     import numpy as np
 
     class ConvCfC(tf.keras.Model):
-    def __init__(self, n_actions):
-        super().__init__()
-        self.conv_block = tf.keras.models.Sequential(
-            [
-                tf.keras.Input((84, 84, 4)),
-                tf.keras.layers.Lambda(
-                    lambda x: tf.cast(x, tf.float32) / 255.0
-                ),  # normalize input
-                tf.keras.layers.Conv2D(
-                    64, 5, padding="same", activation="relu", strides=2
-                ),
-                tf.keras.layers.Conv2D(
-                    128, 5, padding="same", activation="relu", strides=2
-                ),
-                tf.keras.layers.Conv2D(
-                    128, 5, padding="same", activation="relu", strides=2
-                ),
-                tf.keras.layers.Conv2D(
-                    256, 5, padding="same", activation="relu", strides=2
-                ),
-                tf.keras.layers.GlobalAveragePooling2D(),
-            ]
-        )
-        self.td_conv = tf.keras.layers.TimeDistributed(self.conv_block)
-        self.rnn = CfC(64, return_sequences=True, return_state=True)
-        self.linear = tf.keras.layers.Dense(n_actions)
+        def __init__(self, n_actions):
+            super().__init__()
+            self.conv_block = tf.keras.models.Sequential(
+                [
+                    tf.keras.Input((84, 84, 4)),
+                    tf.keras.layers.Lambda(
+                        lambda x: tf.cast(x, tf.float32) / 255.0
+                    ),  # normalize input
+                    tf.keras.layers.Conv2D(
+                        64, 5, padding="same", activation="relu", strides=2
+                    ),
+                    tf.keras.layers.Conv2D(
+                        128, 5, padding="same", activation="relu", strides=2
+                    ),
+                    tf.keras.layers.Conv2D(
+                        128, 5, padding="same", activation="relu", strides=2
+                    ),
+                    tf.keras.layers.Conv2D(
+                        256, 5, padding="same", activation="relu", strides=2
+                    ),
+                    tf.keras.layers.GlobalAveragePooling2D(),
+                ]
+            )
+            self.td_conv = tf.keras.layers.TimeDistributed(self.conv_block)
+            self.rnn = CfC(64, return_sequences=True, return_state=True)
+            self.linear = tf.keras.layers.Dense(n_actions)
 
-    def get_initial_states(self, batch_size=1):
-        return self.rnn.cell.get_initial_state(batch_size=batch_size, dtype=tf.float32)
+        def get_initial_states(self, batch_size=1):
+            return self.rnn.cell.get_initial_state(batch_size=batch_size, dtype=tf.float32)
 
-    def call(self, x, training=None, **kwargs):
-        has_hx = isinstance(x, list) or isinstance(x, tuple)
-        initial_state = None
-        if has_hx:
-            # additional inputs are passed as a tuple
-            x, initial_state = x
+        def call(self, x, training=None, **kwargs):
+            has_hx = isinstance(x, list) or isinstance(x, tuple)
+            initial_state = None
+            if has_hx:
+                # additional inputs are passed as a tuple
+                x, initial_state = x
 
-        x = self.td_conv(x, training=training)
-        x, next_state = self.rnn(x, initial_state=initial_state)
-        x = self.linear(x)
-        if has_hx:
-            return (x, next_state)
-        return x
+            x = self.td_conv(x, training=training)
+            x, next_state = self.rnn(x, initial_state=initial_state)
+            x = self.linear(x)
+            if has_hx:
+                return (x, next_state)
+            return x
 
 Dataloader
 -------------------------------------
@@ -92,7 +92,7 @@ We have to wrap the environment with the helper functions proposed in `DeepMind'
 
 The resulting observations are then 84-by-84 images with 4 channels.
 
-For the behavior cloning dataset, we will use the `AtariCloningDatasetTF` dataset provided by the `ncps` package.
+For the behavior cloning dataset, we will use the ``AtariCloningDatasetTF`` dataset provided by the ``ncps`` package.
 
 .. code-block:: python
 
@@ -146,13 +146,13 @@ There are three subtleties we need to take care of:
                     # Count down the number of episodes
                     num_episodes = num_episodes - 1
                     if num_episodes == 0:
-                    return returns
+                        return returns
 
 Evaluating the closed-loop performance during training
 ----------------------------------------------------------
 During the training, we measure only offline performance in the form of the training and validation accuracy.
-However, we also want to check after every training epoch how the cloned network is performing when applied the closed-loop environment.
-To this end, we have to define a keras callback that is invoked after every training epoch and implement the closed-loop evaluation.
+However, we also want to check after every training epoch how the cloned network is performing when applied to the closed-loop environment.
+To this end, we have to define a keras callback that is invoked after every training epoch and implements the closed-loop evaluation.
 
 
 .. code-block:: python
@@ -171,7 +171,7 @@ To this end, we have to define a keras callback that is invoked after every trai
 
 Training the model
 -------------------------------------
-Finally, we can instantiate the model and train it by using keras high-level `model.fit` functionality.
+Finally, we can instantiate the model and train it by using keras high-level ``model.fit`` functionality.
 
 .. code-block:: python
 
@@ -191,7 +191,7 @@ Finally, we can instantiate the model and train it by using keras high-level `mo
         epochs=50,
         validation_data=valloader,
         callbacks=[
-            ClosedLoopCallback(model, stateful_model, env)
+            ClosedLoopCallback(model, env)
         ],
     )
 
@@ -204,10 +204,10 @@ After the training is completed we can display in a window how the model plays t
     env = wrap_deepmind(env)
     run_closed_loop(model, env)
 
-The full source code can be downloaded `here <https://github.com/mlech26l/ncps/blob/master/examples/atari_tf.py>`_
+The full source code can be downloaded `here <https://github.com/mlech26l/ncps/blob/master/examples/atari_tf.py>`_.
 
 .. note::
-    At a validation accuracy of about 92% the behavior cloning data usually implies a decent closed-loop performance of the cloned agent
+    At a validation accuracy of about 92%, the behavior cloning data usually implies a decent closed-loop performance of the cloned agent.
 
 The output of the full script is something like:
 

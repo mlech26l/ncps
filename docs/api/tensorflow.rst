@@ -3,10 +3,13 @@
 Tensorflow (tf.keras Layers)
 ----------------------------
 
-Sequence models
-============================================
+.. toctree::
+    :maxdepth: 2
 
 .. automodule:: ncps.tf
+
+Sequence models
+============================================
 
 .. autoclass:: CfC
    :members:

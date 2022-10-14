@@ -15,7 +15,7 @@ Before we start, we need to install some packages
 
 .. code-block:: bash
 
-    pip3 install ncps torch ale-py==0.7.4 gym[atari,accept-rom-license]==0.23
+    pip3 install ncps torch "ale-py==0.7.4" "ray[rllib]" "gym[atari,accept-rom-license]==0.23.1"
 
 Defining the model
 -------------------------------------
@@ -78,7 +78,7 @@ We have to wrap the environment with the helper functions proposed in `DeepMind'
 
 The resulting observations are then 84-by-84 images with 4 channels.
 
-For the behavior cloning dataset, we will use the `AtariCloningDataset` PyTorch dataset provided by the `ncps` package.
+For the behavior cloning dataset, we will use the ``AtariCloningDataset`` PyTorch dataset provided by the ``ncps`` package.
 
 .. code-block:: python
 
@@ -230,7 +230,7 @@ After the training is completed we can display in a window how the model plays t
 The full source code can be downloaded `here <https://github.com/mlech26l/ncps/blob/master/examples/atari_torch.py>`_
 
 .. note::
-    At a validation accuracy of about 92% the behavior cloning data usually implies a decent closed-loop performance of the cloned agent
+    At a validation accuracy of about 92%, the behavior cloning data usually implies a decent closed-loop performance of the cloned agent.
 
 The output of the full script is something like:
 

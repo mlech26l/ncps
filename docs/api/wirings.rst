@@ -1,6 +1,9 @@
 Wirings
 ------------------
 
+.. toctree::
+    :maxdepth: 2
+
 .. module:: ncps.wirings
 
 .. autoclass:: Wiring
