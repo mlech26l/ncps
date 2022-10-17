@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Mathias Lechner
+# Copyright 2022 Mathias Lechner and Ramin Hasani
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -353,7 +353,7 @@ class LTCCell(tf.keras.layers.AbstractRNNCell):
     def from_config(cls, config):
         wiring = wirings.Wiring.from_config(config)
         return cls(wiring=wiring, **config)
-    
+
     # Seems like you missed the previous plotting functions in your previous repo
     def get_graph(self, include_sensory_neurons=True):
         if not self.built:
