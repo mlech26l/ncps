@@ -21,10 +21,9 @@ import numpy as np
 from ncps.datasets.tf import AtariCloningDatasetTF
 
 
-class ConvCfC(tf.keras.Model):
-    def __init__(self, n_actions):
-        super().__init__()
-        self.conv_block = tf.keras.models.Sequential(
+class ConvBlock(tf.keras.models.Sequential):
+    def __init__(self):
+        super(ConvBlock, self).__init__(
             [
                 tf.keras.Input((84, 84, 4)),
                 tf.keras.layers.Lambda(
@@ -45,6 +44,12 @@ class ConvCfC(tf.keras.Model):
                 tf.keras.layers.GlobalAveragePooling2D(),
             ]
         )
+
+
+class ConvCfC(tf.keras.Model):
+    def __init__(self, n_actions):
+        super().__init__()
+        self.conv_block = ConvBlock()
         self.td_conv = tf.keras.layers.TimeDistributed(self.conv_block)
         self.rnn = CfC(64, return_sequences=True, return_state=True)
         self.linear = tf.keras.layers.Dense(n_actions)

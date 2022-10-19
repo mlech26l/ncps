@@ -6,5 +6,4 @@ Examples
 .. toctree::
     :titlesonly:
 
-    atari_tf.rst
-    atari_torch.rst
+    atari_bc.rst

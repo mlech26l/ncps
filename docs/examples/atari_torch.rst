@@ -102,11 +102,6 @@ For the behavior cloning dataset, we will use the ``AtariCloningDataset`` PyTorc
     )
     valloader = torch.utils.data.DataLoader(val_ds, batch_size=32, num_workers=4)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = ConvCfC(n_actions=env.action_space.n).to(device)
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.0001)
-
 Training loop
 -------------------------------------
 For the training, we define a function that train the model by making one pass over the dataset.
@@ -137,11 +132,6 @@ For the training, we define a function that train the model by making one pass o
             pbar.set_description(f"loss={running_loss / (i + 1):0.4g}")
             pbar.update(1)
         pbar.close()
-
-We also want to track the offline performance (= accuracy) of the model on the validation set.
-To this end, we define another function that iterates over a dataset and measures the accuracy.
-
-.. code-block:: python
 
     def eval(model, valloader):
         losses, accs = [], []
@@ -206,6 +196,11 @@ Training the model
 With the functions and model defined above, we can how implement our training procedure very conveniently.
 
 .. code-block:: python
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = ConvCfC(n_actions=env.action_space.n).to(device)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=0.0001)
 
     for epoch in range(50):  # loop over the dataset multiple times
         train_one_epoch(model, criterion, optimizer, trainloader)
