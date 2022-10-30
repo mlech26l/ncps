@@ -60,7 +60,7 @@ The package is composed of two main parts:
 - An wiring architecture for the LTC cell above
 
 The wiring could be fully-connected (all-to-all) or sparsely designed using the NCP principles introduced in the paper.
-As the LTC model is expressed in the form of a system of [ordinary differential equations in time](https://arxiv.org/abs/2006.04439), any instance of it is inherently a recurrent neural network (RNN).
+As the LTC model is expressed in the form of a system of [ordinary differential equations](https://arxiv.org/abs/2006.04439) in time, any instance of it is inherently a recurrent neural network (RNN).
 
 Let's create a LTC network consisting of 8 fully-connected neurons that receive a time-series of 2 input features as input. Moreover, we define that 1 of the 8 neurons acts as the output (=motor neuron):
 
