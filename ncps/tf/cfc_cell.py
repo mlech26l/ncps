@@ -184,7 +184,6 @@ class CfCCell(tf.keras.layers.AbstractRNNCell):
         else:
             # Regularly sampled mode (elapsed time = 1 second)
             t = 1.0
-
         x = tf.keras.layers.Concatenate()([inputs, states[0]])
         x = self.backbone_fn(x)
         if self.sparsity_mask is not None:

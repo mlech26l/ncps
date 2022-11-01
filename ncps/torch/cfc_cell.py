@@ -94,17 +94,20 @@ class CfCCell(nn.Module):
             backbone_activation = LeCun
         else:
             raise ValueError(f"Unknown activation {backbone_activation}")
-        layer_list = [
-            nn.Linear(input_size + hidden_size, backbone_units),
-            backbone_activation(),
-        ]
-        for i in range(1, backbone_layers):
-            layer_list.append(nn.Linear(backbone_units, backbone_units))
-            layer_list.append(backbone_activation())
-            if backbone_dropout > 0.0:
-                layer_list.append(torch.nn.Dropout(backbone_dropout))
-        self.backbone = nn.Sequential(*layer_list)
+
+        self.backbone = None
         self.backbone_layers = backbone_layers
+        if backbone_layers > 0:
+            layer_list = [
+                nn.Linear(input_size + hidden_size, backbone_units),
+                backbone_activation(),
+            ]
+            for i in range(1, backbone_layers):
+                layer_list.append(nn.Linear(backbone_units, backbone_units))
+                layer_list.append(backbone_activation())
+                if backbone_dropout > 0.0:
+                    layer_list.append(torch.nn.Dropout(backbone_dropout))
+            self.backbone = nn.Sequential(*layer_list)
         self.tanh = nn.Tanh()
         self.sigmoid = nn.Sigmoid()
         cat_shape = int(

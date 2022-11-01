@@ -116,6 +116,26 @@ def test_ncp_2():
     assert output.size() == (5, 3, 8)
     assert hx.size() == (3, 10 + 10 + 8)
 
+
+def test_ncp_cfc_1():
+    input_size = 8
+    wiring = ncps.wirings.NCP(10, 10, 8, 6, 6, 4, 6)
+    rnn = CfC(input_size, wiring, batch_first=True)
+    input = torch.randn(5, 3, input_size)
+    output, hx = rnn(input)
+    assert output.size() == (5, 3, 8)
+    assert hx.size() == (5, 10 + 10 + 8)
+
+
+def test_ncp_cfc_2():
+    input_size = 8
+    wiring = ncps.wirings.NCP(10, 10, 8, 6, 6, 4, 6)
+    rnn = CfC(input_size, wiring, batch_first=False)
+    input = torch.randn(5, 3, input_size)
+    output, hx = rnn(input)
+    assert output.size() == (5, 3, 8)
+    assert hx.size() == (3, 10 + 10 + 8)
+
     # def __init__(
     #         self,
     #         input_size,
@@ -130,3 +150,17 @@ def test_ncp_2():
     #         backbone_layers=1,
     #         backbone_dr=0.0,
     # ):
+
+
+if __name__ == "__main__":
+    import traceback
+    import warnings
+    import sys
+
+    def warn_with_traceback(message, category, filename, lineno, file=None, line=None):
+        log = file if hasattr(file, "write") else sys.stderr
+        traceback.print_stack(file=log)
+        log.write(warnings.formatwarning(message, category, filename, lineno, line))
+
+    warnings.showwarning = warn_with_traceback
+    test_ncp_cfc_2()

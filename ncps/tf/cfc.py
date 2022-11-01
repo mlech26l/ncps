@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import ncps
-from . import CfCCell, MixedMemoryRNN
+from . import CfCCell, MixedMemoryRNN, WiredCfCCell
 import tensorflow as tf
 from typing import Optional, Union
 
@@ -22,7 +22,7 @@ from typing import Optional, Union
 class CfC(tf.keras.layers.RNN):
     def __init__(
         self,
-        units: int,
+        units: Union[int,ncps.wirings.Wiring],
         mixed_memory: bool = False,
         mode: str = "default",
         activation: str = "lecun_tanh",
@@ -64,14 +64,13 @@ class CfC(tf.keras.layers.RNN):
         """
 
         if isinstance(units, ncps.wirings.Wiring):
-            raise NotImplementedError()
             if backbone_units is not None:
                 raise ValueError(f"Cannot use backbone_units in wired mode")
             if backbone_layers is not None:
                 raise ValueError(f"Cannot use backbone_layers in wired mode")
             if backbone_dropout is not None:
                 raise ValueError(f"Cannot use backbone_dropout in wired mode")
-            # cell = WiredCfCCell(wiring_or_units, mode=mode, activation=activation)
+            cell = WiredCfCCell(units, mode=mode, activation=activation)
         else:
             backbone_units = 128 if backbone_units is None else backbone_units
             backbone_layers = 1 if backbone_layers is None else backbone_layers

@@ -17,14 +17,14 @@ import torch
 from torch import nn
 from typing import Optional, Union
 import ncps
-from . import CfCCell
+from . import CfCCell, WiredCfCCell
 from .lstm import LSTMCell
 
 
 class CfC(nn.Module):
     def __init__(
         self,
-        input_size: int,
+        input_size: Union[int, ncps.wirings.Wiring],
         units,
         proj_size: Optional[int] = None,
         return_sequences: bool = True,
@@ -68,7 +68,6 @@ class CfC(nn.Module):
         self.return_sequences = return_sequences
 
         if isinstance(units, ncps.wirings.Wiring):
-            raise NotImplementedError()
             self.wired_mode = True
             if backbone_units is not None:
                 raise ValueError(f"Cannot use backbone_units in wired mode")
@@ -80,6 +79,11 @@ class CfC(nn.Module):
             self.wiring = units
             self.state_size = self.wiring.units
             self.output_size = self.wiring.output_dim
+            self.rnn_cell = WiredCfCCell(
+                input_size,
+                self.wiring_or_units,
+                mode,
+            )
         else:
             self.wired_false = True
             backbone_units = 128 if backbone_units is None else backbone_units
