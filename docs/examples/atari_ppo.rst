@@ -36,7 +36,10 @@ in a single network often has some learning advantages of having shared features
 
 .. code-block:: python
 
+    import numpy as np
+    from ray.rllib.models.modelv2 import ModelV2
     from ray.rllib.models.tf.recurrent_net import RecurrentNetwork
+    from ray.rllib.utils.annotations import override
     import tensorflow as tf
     from ncps.tf import CfC
 
@@ -133,6 +136,8 @@ Once we have defined out model, we can register it in rllib:
 
 .. code-block:: python
 
+    from ray.rllib.models import ModelCatalog
+
     ModelCatalog.register_custom_model("cfc", ConvCfCModel)
 
 Defining the RL algorithm and its hyperparameters
@@ -144,6 +149,15 @@ Luckily, the rllib authors have provided a `configuration that works decently fo
 which we will make use of.
 
 .. code-block:: python
+
+    import argparse
+    import os
+    import gym
+    from ray.tune.registry import register_env
+    from ray.rllib.algorithms.ppo import PPO
+    import time
+    import ale_py
+    from ray.rllib.env.wrappers.atari_wrappers import wrap_deepmind
 
     if __name__ == "__main__":
         parser = argparse.ArgumentParser()
@@ -256,13 +270,13 @@ Particularly, we branch depending on the ``--render`` argument whether to train 
                 break
 
 
-The full source code can be downloaded `here <https://github.com/mlech26l/ncps/blob/master/examples/atari_ppo.py>`_.
+The full source code can be found `here <https://github.com/mlech26l/ncps/blob/master/examples/atari_ppo.py>`_.
 
 .. note::
-    On a modern (2022) desktop machine, it takes about an hour to get to a return of 20, and about 4 hours to reach a return of 50.
+    On a modern desktop machine, it takes about an hour to get to a return of 20, and about 4 hours to reach a return of 50.
 
 .. warning::
-    For Atari environments rllib distinguishes between the episodic (1 life) and the game (3 lives) return.
+    For Atari environments rllib distinguishes between the episodic (1 life) and the game (3 lives) return, thus the return reported by rllib may differ from the return achieved in the closed-loop evaluation.
 
 The output of the full script is something like:
 
