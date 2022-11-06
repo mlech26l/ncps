@@ -7,3 +7,4 @@ Examples
     :titlesonly:
 
     atari_bc.rst
+    atari_ppo.rst
