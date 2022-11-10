@@ -18,30 +18,21 @@ The goal of this package is to making working with NCPs in PyTorch and keras as 
 
 [Documentation](https://ncps.readthedocs.io/en/latest/index.html)
 
+```python
+import torch
+from ncps.torch import CfC
+
+rnn = CfC(20,50) # (input, hidden units)
+x = torch.randn(2, 3, 20) # (batch, time, features)
+h0 = torch.zeros(2,50) # (batch, units)
+output, hn = rnn(x,h0)
+```
+
+
 ## Installation
 
 ```bash
 pip install ncps
-```
-
-
-## Update January 2021: Experimental PyTorch support added
-
-With ```keras-ncp``` version 2.0 experimental PyTorch support is added. There is an example on how to use the PyTorch binding in the [examples](https://github.com/mlech26l/keras-ncp/blob/master/examples/pt_example.py) folder and a Colab notebook linked below.
-**Note** that the support is currently experimental, which means that it currently misses some functionality (e.g., no plotting, no irregularly sampled time-series,etc. ) and might be subject to breaking API changes in future updates.
-
-
-### Breaking API changes between 1.x and 2.x
-
-The TensorFlow bindings have been moved to the ```tf``` submodule. Thus the only breaking change regarding the TensorFlow/Keras bindings concern the import
-
-
-```python
-# Import shared modules for wirings.rst, datasets,...
-import kerasncp as kncp
-# Import framework-specific binding
-from kerasncp.tf import LTCCell      # Use TensorFlow binding
-(from kerasncp.torch import LTCCell  # Use PyTorch binding)
 ```
 
 ## Colab notebooks

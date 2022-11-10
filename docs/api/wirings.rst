@@ -9,6 +9,9 @@ Wirings
 .. autoclass:: Wiring
    :members:
 
+.. autoclass:: AutoNCP
+   :members:
+
 .. autoclass:: NCP
    :members:
 

@@ -107,6 +107,16 @@ def test_ncp_1():
     assert hx.size() == (5, 10 + 10 + 8)
 
 
+def test_auto_ncp_1():
+    input_size = 8
+    wiring = ncps.wirings.AutoNCP(16, 4)
+    rnn = LTC(input_size, wiring, batch_first=True)
+    input = torch.randn(5, 3, input_size)
+    output, hx = rnn(input)
+    assert output.size() == (5, 3, 4)
+    assert hx.size() == (5, 16)
+
+
 def test_ncp_2():
     input_size = 8
     wiring = ncps.wirings.NCP(10, 10, 8, 6, 6, 4, 6)
@@ -125,6 +135,16 @@ def test_ncp_cfc_1():
     output, hx = rnn(input)
     assert output.size() == (5, 3, 8)
     assert hx.size() == (5, 10 + 10 + 8)
+
+
+def test_auto_ncp_cfc_1():
+    input_size = 8
+    wiring = ncps.wirings.AutoNCP(28, 10)
+    rnn = CfC(input_size, wiring, batch_first=True)
+    input = torch.randn(5, 3, input_size)
+    output, hx = rnn(input)
+    assert output.size() == (5, 3, 10)
+    assert hx.size() == (5, 28)
 
 
 def test_ncp_cfc_2():

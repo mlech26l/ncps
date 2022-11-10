@@ -178,6 +178,29 @@ def test_ncp_rnn():
     model.fit(x=data_x, y=data_y, batch_size=1, epochs=3)
 
 
+def test_auto_ncp_rnn():
+    N = 48  # Length of the time-series
+    # Input feature is a sine and a cosine wave
+    data_x = np.stack(
+        [np.sin(np.linspace(0, 3 * np.pi, N)), np.cos(np.linspace(0, 3 * np.pi, N))],
+        axis=1,
+    )
+    data_x = np.expand_dims(data_x, axis=0).astype(np.float32)  # Add batch dimension
+    # Target output is a sine with double the frequency of the input signal
+    data_y = np.sin(np.linspace(0, 6 * np.pi, N)).reshape([1, N, 1]).astype(np.float32)
+    ncp_wiring = wirings.AutoNCP(28, 1)
+    ltc = LTC(ncp_wiring, return_sequences=True)
+
+    model = tf.keras.models.Sequential(
+        [
+            tf.keras.layers.InputLayer(input_shape=(None, 2)),
+            ltc,
+        ]
+    )
+    model.compile(optimizer=tf.keras.optimizers.Adam(0.01), loss="mean_squared_error")
+    model.fit(x=data_x, y=data_y, batch_size=1, epochs=3)
+
+
 def test_random_cfc():
     N = 48  # Length of the time-series
     # Input feature is a sine and a cosine wave
@@ -221,6 +244,29 @@ def test_ncp_cfc_rnn():
         # command neuron layer
         motor_fanin=4,  # How many incoming synapses has each motor neuron
     )
+    ltc = CfC(ncp_wiring, return_sequences=True)
+
+    model = tf.keras.models.Sequential(
+        [
+            tf.keras.layers.InputLayer(input_shape=(None, 2)),
+            ltc,
+        ]
+    )
+    model.compile(optimizer=tf.keras.optimizers.Adam(0.01), loss="mean_squared_error")
+    model.fit(x=data_x, y=data_y, batch_size=1, epochs=3)
+
+
+def test_auto_ncp_cfc_rnn():
+    N = 48  # Length of the time-series
+    # Input feature is a sine and a cosine wave
+    data_x = np.stack(
+        [np.sin(np.linspace(0, 3 * np.pi, N)), np.cos(np.linspace(0, 3 * np.pi, N))],
+        axis=1,
+    )
+    data_x = np.expand_dims(data_x, axis=0).astype(np.float32)  # Add batch dimension
+    # Target output is a sine with double the frequency of the input signal
+    data_y = np.sin(np.linspace(0, 6 * np.pi, N)).reshape([1, N, 1]).astype(np.float32)
+    ncp_wiring = wirings.AutoNCP(32, 1)
     ltc = CfC(ncp_wiring, return_sequences=True)
 
     model = tf.keras.models.Sequential(

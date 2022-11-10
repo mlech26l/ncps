@@ -11,6 +11,9 @@ This package provides easy-to-use implementations of NCPS for PyTorch and Tensor
 
     pip3 install -U ncps
 
+.. image:: ../img/things.png
+   :align: center
+
 
 User’s Guide
 --------------

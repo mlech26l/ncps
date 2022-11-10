@@ -380,3 +380,47 @@ class NCP(Wiring):
         self._build_inter_to_command_layer()
         self._build_recurrent_command_layer()
         self._build_command__to_motor_layer()
+
+
+class AutoNCP(NCP):
+    def __init__(
+        self,
+        units,
+        output_size,
+        sparsity_level=0.5,
+        seed=22222,
+    ):
+        """Instantiate an NCP wiring with only needing to specify the number of units and the number of outputs
+
+        :param units: The total number of neurons
+        :param output_size: The number of motor neurons (=output size). This value must be less than units-2 (typically good choices are 0.3 times the total number of units)
+        :param sparsity_level: A hyperparameter between 0.0 (very dense) and 0.9 (very sparse) NCP.
+        :param seed: Random seed for generating the wiring
+        """
+        if output_size >= units - 2:
+            raise ValueError(
+                f"Output size must be less than the number of units-2 (given {units} units, {output_size} output size)"
+            )
+        if sparsity_level < 0.1 or sparsity_level > 1.0:
+            raise ValueError(
+                f"Sparsity level must be between 0.0 and 0.9 (given {sparsity_level})"
+            )
+        density_level = 1.0 - sparsity_level
+        inter_and_command_neurons = units - output_size
+        command_neurons = max(int(0.4 * inter_and_command_neurons), 1)
+        inter_neurons = inter_and_command_neurons - command_neurons
+
+        sensory_fanout = max(int(inter_neurons * density_level), 1)
+        inter_fanout = max(int(command_neurons * density_level), 1)
+        recurrent_command_synapses = max(int(command_neurons * density_level * 2), 1)
+        motor_fanin = max(int(command_neurons * density_level), 1)
+        super(AutoNCP, self).__init__(
+            inter_neurons,
+            command_neurons,
+            output_size,
+            sensory_fanout,
+            inter_fanout,
+            recurrent_command_synapses,
+            motor_fanin,
+            seed=seed,
+        )
