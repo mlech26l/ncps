@@ -11,20 +11,21 @@ This package provides easy-to-use implementations of NCPs for PyTorch and Tensor
 
     pip3 install -U ncps
 
-Example use case:
+Example Pytorch example:
 
 .. code-block:: python
 
-    pip3 install -U ncps
-
-    # PyTorch example
     from ncps.torch import CfC
 
-    rnn = CfC(input_size=20, units=50) # a fully connected CfC network
+    # a fully connected CfC network
+    rnn = CfC(input_size=20, units=50)
     x = torch.randn(2, 3, 20) # (batch, time, features)
     h0 = torch.zeros(2,50) # (batch, units)
     output, hn = rnn(x,h0)
 
+A Tensorflow example
+
+.. code-block:: python
 
     # Tensorflow example
     from ncps.tf import LTC
@@ -34,10 +35,10 @@ Example use case:
     model = tf.keras.models.Sequential(
         [
             tf.keras.layers.InputLayer(input_shape=(None, 2)),
+            # LTC model with NCP sparse wiring
             LTC(wiring, return_sequences=True),
         ]
     )
-    model.compile(optimizer=tf.keras.optimizers.Adam(0.01), loss="mean_squared_error")
 
 
 
