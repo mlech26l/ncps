@@ -199,6 +199,8 @@ def test_auto_ncp_rnn():
     )
     model.compile(optimizer=tf.keras.optimizers.Adam(0.01), loss="mean_squared_error")
     model.fit(x=data_x, y=data_y, batch_size=1, epochs=3)
+    assert ncp_wiring.synapse_count > 0
+    assert ncp_wiring.sensory_synapse_count > 0
 
 
 def test_random_cfc():

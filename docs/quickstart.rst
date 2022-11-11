@@ -50,7 +50,7 @@ The easiest way to create a NCP wiring is via the ``AutoNCP`` class, which requi
     input_size = 20
     rnn = CfC(input_size, wiring)
 
-Examples
+Diagram
 =============================
 
 .. image:: ./img/things.png

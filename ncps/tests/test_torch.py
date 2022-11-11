@@ -101,6 +101,8 @@ def test_ncp_1():
     input_size = 8
     wiring = ncps.wirings.NCP(10, 10, 8, 6, 6, 4, 6)
     rnn = LTC(input_size, wiring, batch_first=True)
+    assert wiring.synapse_count > 0
+    assert wiring.sensory_synapse_count > 0
     input = torch.randn(5, 3, input_size)
     output, hx = rnn(input)
     assert output.size() == (5, 3, 8)

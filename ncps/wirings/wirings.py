@@ -129,6 +129,143 @@ class Wiring:
 
         return wiring
 
+    def get_graph(self, include_sensory_neurons=True):
+        if not self.is_built():
+            raise ValueError(
+                "Wiring is not built yet.\n"
+                "This is probably because the input shape is not known yet.\n"
+                "Consider calling the model.build(...) method using the shape of the inputs."
+            )
+        # Only import networkx package if we really need it
+        import networkx as nx
+
+        DG = nx.DiGraph()
+        for i in range(self.units):
+            neuron_type = self.get_type_of_neuron(i)
+            DG.add_node("neuron_{:d}".format(i), neuron_type=neuron_type)
+        for i in range(self.input_dim):
+            DG.add_node("sensory_{:d}".format(i), neuron_type="sensory")
+
+        erev = self.adjacency_matrix
+        sensory_erev = self.sensory_adjacency_matrix
+
+        for src in range(self.input_dim):
+            for dest in range(self.units):
+                if self.sensory_adjacency_matrix[src, dest] != 0:
+                    polarity = (
+                        "excitatory" if sensory_erev[src, dest] >= 0.0 else "inhibitory"
+                    )
+                    DG.add_edge(
+                        "sensory_{:d}".format(src),
+                        "neuron_{:d}".format(dest),
+                        polarity=polarity,
+                    )
+
+        for src in range(self.units):
+            for dest in range(self.units):
+                if self.adjacency_matrix[src, dest] != 0:
+                    polarity = "excitatory" if erev[src, dest] >= 0.0 else "inhibitory"
+                    DG.add_edge(
+                        "neuron_{:d}".format(src),
+                        "neuron_{:d}".format(dest),
+                        polarity=polarity,
+                    )
+        return DG
+
+    @property
+    def synapse_count(self):
+        return np.sum(np.abs(self.adjacency_matrix))
+
+    @property
+    def sensory_synapse_count(self):
+        return np.sum(np.abs(self.sensory_adjacency_matrix))
+
+    def draw_graph(
+        self,
+        layout="shell",
+        neuron_colors=None,
+        synapse_colors=None,
+        draw_labels=False,
+    ):
+        # May switch to Cytoscape once support in Google Colab is available
+        # https://stackoverflow.com/questions/62421021/how-do-i-install-cytoscape-on-google-colab
+        import networkx as nx
+        import matplotlib.patches as mpatches
+        import matplotlib.pyplot as plt
+
+        if isinstance(synapse_colors, str):
+            synapse_colors = {
+                "excitatory": synapse_colors,
+                "inhibitory": synapse_colors,
+            }
+        elif synapse_colors is None:
+            synapse_colors = {"excitatory": "tab:green", "inhibitory": "tab:red"}
+
+        default_colors = {
+            "inter": "tab:blue",
+            "motor": "tab:orange",
+            "sensory": "tab:olive",
+        }
+        if neuron_colors is None:
+            neuron_colors = {}
+        # Merge default with user provided color dict
+        for k, v in default_colors.items():
+            if not k in neuron_colors.keys():
+                neuron_colors[k] = v
+
+        legend_patches = []
+        for k, v in neuron_colors.items():
+            label = "{}{} neurons".format(k[0].upper(), k[1:])
+            color = v
+            legend_patches.append(mpatches.Patch(color=color, label=label))
+
+        G = self.get_graph()
+        layouts = {
+            "kamada": nx.kamada_kawai_layout,
+            "circular": nx.circular_layout,
+            "random": nx.random_layout,
+            "shell": nx.shell_layout,
+            "spring": nx.spring_layout,
+            "spectral": nx.spectral_layout,
+            "spiral": nx.spiral_layout,
+        }
+        if not layout in layouts.keys():
+            raise ValueError(
+                "Unknown layer '{}', use one of '{}'".format(
+                    layout, str(layouts.keys())
+                )
+            )
+        pos = layouts[layout](G)
+
+        # Draw neurons
+        for i in range(self.units):
+            node_name = "neuron_{:d}".format(i)
+            neuron_type = G.nodes[node_name]["neuron_type"]
+            neuron_color = "tab:blue"
+            if neuron_type in neuron_colors.keys():
+                neuron_color = neuron_colors[neuron_type]
+            nx.draw_networkx_nodes(G, pos, [node_name], node_color=neuron_color)
+
+        # Draw sensory neurons
+        for i in range(self.input_dim):
+            node_name = "sensory_{:d}".format(i)
+            neuron_color = "blue"
+            if "sensory" in neuron_colors.keys():
+                neuron_color = neuron_colors["sensory"]
+            nx.draw_networkx_nodes(G, pos, [node_name], node_color=neuron_color)
+
+        # Optional: draw labels
+        if draw_labels:
+            nx.draw_networkx_labels(G, pos)
+
+        # Draw edges
+        for node1, node2, data in G.edges(data=True):
+            polarity = data["polarity"]
+            edge_color = synapse_colors[polarity]
+            nx.draw_networkx_edges(G, pos, [(node1, node2)], edge_color=edge_color)
+
+        return legend_patches
+
 
 class FullyConnected(Wiring):
     def __init__(
