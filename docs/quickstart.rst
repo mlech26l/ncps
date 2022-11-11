@@ -6,6 +6,7 @@ Quickstart
 
 Neural Circuit Policies are recurrent neural network models inspired by the nervous system of the nematode C. elegans.
 Compared to standard ML models, NCPs have
+
 #. Neurons that are modeled by an ordinary differential equation
 #. A sparse structured wiring
 
