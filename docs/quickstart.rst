@@ -33,14 +33,16 @@ We can use both models described above with a fully-connected wiring diagram by 
     # a fully connected CfC network
     rnn = CfC(input_size=20, units=50)
 
-
 We can also specify sparse structured wirings in the form of a ``ncps.wirings.Wiring`` object.
 The `Neural Circuit Policy (NCP) <https://publik.tuwien.ac.at/files/publik_292280.pdf>`_ is the most interesting wiring paradigm provided in this package and comprises of a 4-layer recurrent connection principle of sensory, inter, command, and motor neurons.
+
+.. image:: ./img/wirings.png
+   :align: center
+
 The easiest way to create a NCP wiring is via the ``AutoNCP`` class, which requires defining the total number of neurons and the number of motor neurons (= output size).
 
 .. code-block:: python
 
-    # Tensorflow example
     from ncps.torch import CfC
     from ncps.wirings import AutoNCP
 

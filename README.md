@@ -43,93 +43,82 @@ We have created a few Google Colab notebooks for an interactive introduction to 
 - [Google Colab: Stacking NCPs with other layers](https://colab.research.google.com/drive/1-mZunxqVkfZVBXNPG0kTSKUNQUSdZiBI?usp=sharing)
 - [NEW: Google Colab: Pytorch binding](https://colab.research.google.com/drive/1VWoGcpyqGvrUOUzH7ccppE__m-n1cAiI?usp=sharing)
 
-## Usage: the basics
+## Usage: Models and Wirings
 
-The package is composed of two main parts: 
-
-- The LTC model as a ```tf.keras.layers.Layer``` or ```torch.nn.Module``` RNN cell
-- An wiring architecture for the LTC cell above
-
-The wiring could be fully-connected (all-to-all) or sparsely designed using the NCP principles introduced in the paper.
-As the LTC model is expressed in the form of a system of [ordinary differential equations](https://arxiv.org/abs/2006.04439) in time, any instance of it is inherently a recurrent neural network (RNN).
-
-Let's create a LTC network consisting of 8 fully-connected neurons that receive a time-series of 2 input features as input. Moreover, we define that 1 of the 8 neurons acts as the output (=motor neuron):
+The package provides two models, the liquid time-constant (LTC) and the closed-form continuous-time (CfC) models.
+Both models are available as ```tf.keras.layers.Layer``` or ```torch.nn.Module``` RNN layers.
 
 ```python
-from tensorflow import keras
-import kerasncp as kncp
-from kerasncp.tf import LTCCell
+from ncps.torch import CfC, LTC
 
-wiring = kncp.wirings.FullyConnected(8, 1)  # 8 units, 1 motor neuron
-ltc_cell = LTCCell(wiring) # Create LTC model
-
-model = keras.Sequential(
-    [
-        keras.layers.InputLayer(input_shape=(None, 2)), # 2 input features
-        keras.layers.RNN(ltc_cell, return_sequences=True),
-    ]
-)
-model.compile(
-    optimizer=keras.optimizers.Adam(0.01), loss='mean_squared_error'
-)
-
+input_size = 20
+units = 28 # 28 neurons
+rnn = CfC(input_size, units)
+rnn = LTC(input_size, units)
 ```
 
+The RNNs defined above consider fully-connected layers, i.e., as in LSTM, GRUs, and other RNNs.
+The distinctiveness of NCPs is their structured wiring diagram. 
+To combine the LTC or CfC model with a 
 
-We can then fit this model to a generated sine wave, as outlined in the tutorials ([open in Google Colab](https://colab.research.google.com/drive/1IvVXVSC7zZPo5w-PfL3mk1MC3PIPw7Vs?usp=sharing)).
-
-![alt](misc/sine.webp)
-
-## More complex architectures
-
-We can also create some more complex NCP wiring architecture. 
-Simply put, an NCP is a 4-layer design vaguely inspired by the wiring of the [C. elegans worm](https://wormwiring.org/). The four layers are sensory, inter, command, and motor layer, which are sparsely connected in a feed-forward fashion. On top of that, the command layer realizes some recurrent connections. As their names already indicate, the sensory represents the input and the motor layer the output of the network.
-
-We can also customize some of the parameter initialization ranges, although the default values should work fine for most cases.
 ```python
-ncp_wiring = kncp.wirings.NCP(
-    inter_neurons=20,  # Number of inter neurons
-    command_neurons=10,  # Number of command neurons
-    motor_neurons=5,  # Number of motor neurons
-    sensory_fanout=4,  # How many outgoing synapses has each sensory neuron
-    inter_fanout=5,  # How many outgoing synapses has each inter neuron
-    recurrent_command_synapses=6,  # Now many recurrent synapses are in the
-    # command neuron layer
-    motor_fanin=4,  # How many incoming synapses has each motor neuron
-)
-ncp_cell = LTCCell(
-    ncp_wiring,
-    initialization_ranges={
-        # Overwrite some of the initialization ranges
-        "w": (0.2, 2.0),
-    },
-)
+from ncps.torch import CfC, LTC
+from ncps.wirings import AutoNCP
+
+wiring = AutoNCP(28, 4) # 28 neurons, 4 outputs
+input_size = 20
+rnn = CfC(input_size, wiring)
+rnn = LTC(input_size, wiring)
 ```
 
-We can then combine the NCP cell with arbitrary ```keras.layers```, for instance to build a powerful image sequence classifier:
+![alt](https://github.com/mlech26l/ncps/raw/master/docs/img/things.png)
+
+## Tensorflow
+
+The Tensorflow bindings are available via the ```ncps.tf``` module.
 
 ```python
+from ncps.tf import CfC, LTC
+from ncps.wirings import AutoNCP
+
+units = 28
+wiring = AutoNCP(28, 4) # 28 neurons, 4 outputs
+input_size = 20
+rnn1 = LTC(units) # fully-connected LTC
+rnn2 = CfC(units) # fully-connected CfC
+rnn3 = LTC(wiring) # NCP wired LTC
+rnn4 = CfC(wiring) # NCP wired CfC
+```
+
+We can then combine the NCP cell with arbitrary ```tf.keras.layers```, for instance to build a powerful image sequence classifier:
+
+```python
+from ncps.wirings import AutoNCP
+from ncps.tf import LTC
+import tensorflow as tf
 height, width, channels = (78, 200, 3)
 
-model = keras.models.Sequential(
+ncp = LTC(AutoNCP(32, output_size=8), return_sequences=True)
+
+model = tf.keras.models.Sequential(
     [
-        keras.layers.InputLayer(input_shape=(None, height, width, channels)),
-        keras.layers.TimeDistributed(
-            keras.layers.Conv2D(32, (5, 5), activation="relu")
+        tf.keras.layers.InputLayer(input_shape=(None, height, width, channels)),
+        tf.keras.layers.TimeDistributed(
+            tf.keras.layers.Conv2D(32, (5, 5), activation="relu")
         ),
-        keras.layers.TimeDistributed(keras.layers.MaxPool2D()),
-        keras.layers.TimeDistributed(
-            keras.layers.Conv2D(64, (5, 5), activation="relu")
+        tf.keras.layers.TimeDistributed(tf.keras.layers.MaxPool2D()),
+        tf.keras.layers.TimeDistributed(
+            tf.keras.layers.Conv2D(64, (5, 5), activation="relu")
         ),
-        keras.layers.TimeDistributed(keras.layers.MaxPool2D()),
-        keras.layers.TimeDistributed(keras.layers.Flatten()),
-        keras.layers.TimeDistributed(keras.layers.Dense(32, activation="relu")),
-        keras.layers.RNN(ncp_cell, return_sequences=True),
-        keras.layers.TimeDistributed(keras.layers.Activation("softmax")),
+        tf.keras.layers.TimeDistributed(tf.keras.layers.MaxPool2D()),
+        tf.keras.layers.TimeDistributed(tf.keras.layers.Flatten()),
+        tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(32, activation="relu")),
+        ncp,
+        tf.keras.layers.TimeDistributed(tf.keras.layers.Activation("softmax")),
     ]
 )
 model.compile(
-    optimizer=keras.optimizers.Adam(0.01),
+    optimizer=tf.keras.optimizers.Adam(0.01),
     loss='sparse_categorical_crossentropy',
 )
 ```
