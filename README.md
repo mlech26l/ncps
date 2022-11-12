@@ -9,14 +9,14 @@
 ![Documentation Status](https://readthedocs.org/projects/ncps/badge/?version=latest)
 ![downloads](https://img.shields.io/pypi/dm/ncps)
 
-## Papers
+## 📜 Papers
 
 [Neural Circuit Policies Enabling Auditable Autonomy (Open Access)](https://publik.tuwien.ac.at/files/publik_292280.pdf)
 
 Neural Circuit Policies (NCPs) are designed sparse recurrent neural networks loosely inspired by the nervous system of the organism [C. elegans](http://www.wormbook.org/chapters/www_celegansintro/celegansintro.html). 
 The goal of this package is to making working with NCPs in PyTorch and keras as easy as possible.
 
-[Documentation](https://ncps.readthedocs.io/en/latest/index.html)
+[📖 Docs](https://ncps.readthedocs.io/en/latest/index.html)
 
 ```python
 import torch
@@ -35,13 +35,19 @@ output, hn = rnn(x,h0)
 pip install ncps
 ```
 
-## Colab notebooks
+## 🔖 Colab Notebooks
 
 We have created a few Google Colab notebooks for an interactive introduction to the package
 
 - [Google Colab (Pytorch) Basic usage](https://colab.research.google.com/drive/1VWoGcpyqGvrUOUzH7ccppE__m-n1cAiI?usp=sharing)
 - [Google Colab (Tensorflow): Basic usage](https://colab.research.google.com/drive/1IvVXVSC7zZPo5w-PfL3mk1MC3PIPw7Vs?usp=sharing)
 - [Google Colab (Tensorflow) Stacking NCPs with other layers](https://colab.research.google.com/drive/1-mZunxqVkfZVBXNPG0kTSKUNQUSdZiBI?usp=sharing)
+
+## End-to-end Examples
+
+- [Quickstart (torch and tf)](https://ncps.readthedocs.io/en/latest/quickstart.html)
+- [Atari Behavior Cloning (torch and tf)](https://ncps.readthedocs.io/en/latest/examples/atari_bc.html)
+- [Atari Reinforcement Learning (tf)](https://ncps.readthedocs.io/en/latest/examples/atari_ppo.html)
 
 ## Usage: Models and Wirings
 
