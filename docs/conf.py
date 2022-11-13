@@ -42,7 +42,7 @@ extensions = [
     "sphinx.ext.mathjax",
     # "sphinx.ext.autosectionlabel",
     "sphinx.ext.viewcode",
-    "sphinx.ext.intersphinx",
+    # "sphinx.ext.intersphinx",
     "sphinx_copybutton",
     "sphinx_design",
 ]
@@ -68,7 +68,7 @@ autodoc_default_options = {
     # "members": True,
     "undoc-members": False,
     "member-order": "bysource",
-    "show-inheritance": True,
+    "show-inheritance": False,
 }
 # -- Options for HTML output -------------------------------------------------
 

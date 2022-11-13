@@ -22,7 +22,7 @@ from typing import Optional, Union
 class CfC(tf.keras.layers.RNN):
     def __init__(
         self,
-        units: Union[int,ncps.wirings.Wiring],
+        units: Union[int, ncps.wirings.Wiring],
         mixed_memory: bool = False,
         mode: str = "default",
         activation: str = "lecun_tanh",
@@ -48,18 +48,18 @@ class CfC(tf.keras.layers.RNN):
             >>> y = rnn(x)
 
         :param units: Number of hidden units
-        :param mixed_memory: Whether to augment the RNN by a `memory-cell <https://arxiv.org/abs/2006.04418>`_ to help learn long-term dependencies in the data
-        :param mode: Either "default", "pure" (direct solution approximation), or "no_gate" (without second gate).
-        :param activation: Activation function used in the backbone layers
+        :param mixed_memory: Whether to augment the RNN by a `memory-cell <https://arxiv.org/abs/2006.04418>`_ to help learn long-term dependencies in the data (default False)
+        :param mode: Either "default", "pure" (direct solution approximation), or "no_gate" (without second gate). (default "default)
+        :param activation: Activation function used in the backbone layers (default "lecun_tanh")
         :param backbone_units: Number of hidden units in the backbone layer (default 128)
         :param backbone_layers: Number of backbone layers (default 1)
         :param backbone_dropout: Dropout rate in the backbone layers (default 0)
-        :param return_sequences: Whether to return the full sequence or just the last output
-        :param return_state: Whether to return just the output of the RNN or a tuple (output, last_hidden_state)
-        :param go_backwards:
-        :param stateful: Whether to remember the last hidden state of the previous inference/training batch and use it as initial state for the next inference/training batch
-        :param unroll:
-        :param time_major: Whether the time or batch dimension is the first (0-th) dimension
+        :param return_sequences: Whether to return the full sequence or just the last output (default False)
+        :param return_state: Whether to return just the output of the RNN or a tuple (output, last_hidden_state) (default False)
+        :param go_backwards: If True, the input sequence will be process from back to the front (default False)
+        :param stateful: Whether to remember the last hidden state of the previous inference/training batch and use it as initial state for the next inference/training batch (default False)
+        :param unroll: Whether to unroll the graph, i.e., may increase speed at the cost of more memory (default False)
+        :param time_major: Whether the time or batch dimension is the first (0-th) dimension (default False)
         :param kwargs:
         """
 
