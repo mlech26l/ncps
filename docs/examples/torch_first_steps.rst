@@ -34,6 +34,8 @@ Generating synthetic sinusoidal training data
     data_y = np.sin(np.linspace(0, 6 * np.pi, N)).reshape([1, N, 1]).astype(np.float32)
     print("data_x.shape: ", str(data_x.shape))
     print("data_y.shape: ", str(data_y.shape))
+    data_x = torch.Tensor(data_x)
+    data_y = torch.Tensor(data_y)
     dataloader = data.DataLoader(
         data.TensorDataset(data_x, data_y), batch_size=1, shuffle=True, num_workers=4
     )
