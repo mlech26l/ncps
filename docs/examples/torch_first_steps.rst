@@ -170,25 +170,12 @@ Training the model
 .. code-block:: python
 
     # Train the model for 400 epochs (= training steps)
-    hist = model.fit(x=data_x, y=data_y, batch_size=1, epochs=400,verbose=1)
+    trainer.fit(learn, dataloader)
 
 
 .. code-block:: text
 
     .... 1/1 [00:00<00:00, 4.91it/s, loss=0.000459, v_num=0, train_loss=0.000397]
-
-
-Plotting the training loss and the prediction of the model after training
-------------------------------------------------------------------------------
-.. code-block:: python
-
-    # Let's visualize the training loss
-    sns.set()
-    plt.figure(figsize=(6, 4))
-    plt.plot(hist.history["loss"], label="Training loss")
-    plt.legend(loc="upper right")
-    plt.xlabel("Training steps")
-    plt.show()
 
 
 .. image:: ../img/examples/rnd_train_loss.png
