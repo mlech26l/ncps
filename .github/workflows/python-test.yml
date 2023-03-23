@@ -35,4 +35,6 @@ jobs:
         echo "PYTHONPATH=." >> $GITHUB_ENV
     - name: Test with pytest
       run: |
-        pytest ncps/tests
+        pytest ncps/tests/test_tf.py
+        pytest ncps/tests/test_torch.py
+
