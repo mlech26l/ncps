@@ -21,6 +21,7 @@ import numpy as np
 from ncps.datasets.tf import AtariCloningDatasetTF
 
 
+# Not used in this example
 class ConvBlock(tf.keras.models.Sequential):
     def __init__(self):
         super(ConvBlock, self).__init__(
@@ -46,10 +47,43 @@ class ConvBlock(tf.keras.models.Sequential):
         )
 
 
+class ImpalaConvLayer(tf.keras.models.Sequential):
+    def __init__(self, filters, kernel_size, strides, padding="valid", use_bias=False):
+        super(ImpalaConvLayer, self).__init__(
+            [
+                tf.keras.layers.Conv2D(
+                    filters=filters,
+                    kernel_size=kernel_size,
+                    strides=strides,
+                    padding=padding,
+                    use_bias=use_bias,
+                    kernel_initializer=tf.keras.initializers.VarianceScaling(
+                        scale=2.0, mode="fan_out", distribution="truncated_normal"
+                    ),
+                ),
+                tf.keras.layers.BatchNormalization(momentum=0.99, epsilon=0.001),
+                tf.keras.layers.ReLU(),
+            ]
+        )
+
+
+class ImpalaConvBlock(tf.keras.models.Sequential):
+    def __init__(self):
+        super(ImpalaConvBlock, self).__init__(
+            [
+                ImpalaConvLayer(filters=16, kernel_size=8, strides=4),
+                ImpalaConvLayer(filters=32, kernel_size=4, strides=2),
+                ImpalaConvLayer(filters=32, kernel_size=3, strides=1),
+                tf.keras.layers.Flatten(),
+                tf.keras.layers.Dense(units=256, activation="relu"),
+            ]
+        )
+
+
 class ConvCfC(tf.keras.Model):
     def __init__(self, n_actions):
         super().__init__()
-        self.conv_block = ConvBlock()
+        self.conv_block = ImpalaConvBlock()
         self.td_conv = tf.keras.layers.TimeDistributed(self.conv_block)
         self.rnn = CfC(64, return_sequences=True, return_state=True)
         self.linear = tf.keras.layers.Dense(n_actions)
@@ -110,7 +144,6 @@ class ClosedLoopCallback(tf.keras.callbacks.Callback):
 
 
 if __name__ == "__main__":
-
     env = gym.make("ALE/Breakout-v5")
     env = wrap_deepmind(env)
 

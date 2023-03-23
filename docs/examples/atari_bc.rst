@@ -21,15 +21,16 @@ Before we start, we need to install some packages
 
         .. code-block:: bash
 
-            pip3 install ncps torch "ale-py==0.7.4" "ray[rllib]" "gym[atari,accept-rom-license]==0.23.1"
+            pip3 install ncps torch "ale-py==0.7.4" "ray[rllib]==2.1.0" "gym[atari,accept-rom-license]==0.23.1"
 
     .. tab-item:: TensorFlow
         :sync: key2
 
         .. code-block:: bash
 
-            pip3 install ncps tensorflow "ale-py==0.7.4" "ray[rllib]" "gym[atari,accept-rom-license]==0.23.1"
+            pip3 install ncps tensorflow "ale-py==0.7.4" "ray[rllib]==2.1.0" "gym[atari,accept-rom-license]==0.23.1"
 
+Note that this example uses older versions of ``ale-py``, ``ray`` and ``gym`` due to compatibility issues with the latest versions caused by the deprecation of ``gym`` in favor for the ``gymnasium`` package.
 
 Defining the model
 -------------------------------------
@@ -87,6 +88,13 @@ We first define a convolutional block that operates over just a batch of images.
                         tf.keras.layers.GlobalAveragePooling2D(),
                     ]
                 )
+
+In PyTorch, we can use the ``tensor.view()`` method to reshape the input tensor.
+In TensorFlow, we can use the ``tf.keras.layers.Reshape`` layer.
+
+.. note::
+    As pointed out by `@R-Liebert <https://github.com/R-Liebert>`_  Impala-style `convolutional blocks <https://github.com/mlech26l/ncps/issues/41>`_ are known to be more efficient than the one we use here.
+    You can find a Tensorflow implementation of the Impala-style convolutional block `here (TensorFlow) <https://github.com/mlech26l/ncps/blob/master/examples/atari_tf.py>`_.
 
 Next, we define the full model.
 As the model operate over batches of sequences of images (5 dimensions), wherea the convolutional block only accepts 4-dimensional inputs, we have to reshape the input when processing it with the ConvBlock layers.

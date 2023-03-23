@@ -110,7 +110,6 @@ class LTCCell(nn.Module):
             return torch.rand(*shape) * (maxval - minval) + minval
 
     def _allocate_parameters(self):
-        print("alloc!")
         self._params = {}
         self._params["gleak"] = self.add_weight(
             name="gleak", init_value=self._get_init_value((self.state_size,), "gleak")
