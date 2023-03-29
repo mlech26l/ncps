@@ -17,7 +17,7 @@ Before we start, we need to install some packages
 
 .. code-block:: bash
 
-    pip3 install ncps tensorflow "ale-py==0.7.4" "ray[rllib]" "gym[atari,accept-rom-license]==0.23.1"
+    pip3 install ncps tensorflow "ale-py==0.7.4" "ray[rllib]==2.1.0" "gym[atari,accept-rom-license]==0.23.1"
 
 
 Defining the model
