@@ -28,6 +28,7 @@ Before we start, we need to install some packages
 
         .. code-block:: bash
 
+            pip3 install -U ncps tensorflow "gymnasium[atari,accept-rom-license]" "ray[rllib]"
             pip3 install ncps tensorflow "ale-py==0.7.4" "ray[rllib]==2.1.0" "gym[atari,accept-rom-license]==0.23.1"
 
 Note that this example uses older versions of ``ale-py``, ``ray`` and ``gym`` due to compatibility issues with the latest versions caused by the deprecation of ``gym`` in favor for the ``gymnasium`` package.
@@ -54,18 +55,17 @@ We first define a convolutional block that operates over just a batch of images.
                     super().__init__()
                     self.conv1 = nn.Conv2d(4, 64, 5, padding=2, stride=2)
                     self.conv2 = nn.Conv2d(64, 128, 5, padding=2, stride=2)
+                    self.bn2 = nn.BatchNorm2d(128)
                     self.conv3 = nn.Conv2d(128, 128, 5, padding=2, stride=2)
                     self.conv4 = nn.Conv2d(128, 256, 5, padding=2, stride=2)
-                    self.norm = nn.BatchNorm1d(256)
+                    self.bn4 = nn.BatchNorm2d(256)
 
                 def forward(self, x):
-                    # x is of shape (-1,4,84,84)
                     x = F.relu(self.conv1(x))
-                    x = F.relu(self.conv2(x))
+                    x = F.relu(self.bn2(self.conv2(x)))
                     x = F.relu(self.conv3(x))
-                    x = F.relu(self.conv4(x))
+                    x = F.relu(self.bn4(self.conv4(x)))
                     x = x.mean((-1, -2))  # Global average pooling
-                    x = self.norm(x)
                     return x
 
     .. tab-item:: TensorFlow

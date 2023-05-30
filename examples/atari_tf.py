@@ -13,7 +13,8 @@
 # limitations under the License.
 
 import tensorflow as tf
-import gym
+
+# import gymnasium
 import ale_py
 from ray.rllib.env.wrappers.atari_wrappers import wrap_deepmind
 from ncps.tf import CfC
@@ -117,6 +118,8 @@ def run_closed_loop(model, env, num_episodes=None):
         pred, hx = model.predict((obs, hx), verbose=0)
         action = pred[0, 0].argmax()
         # remove time and batch dimension -> then argmax
+        # obs, r, term, trunc, _ = env.step(action)
+        # done = term or trunc
         obs, r, done, _ = env.step(action)
         total_reward += r
         if done:
@@ -130,6 +133,10 @@ def run_closed_loop(model, env, num_episodes=None):
                 num_episodes = num_episodes - 1
                 if num_episodes == 0:
                     return returns
+            if num_episodes is None:
+                print(
+                    f"Return {returns[-1]:0.2f} [{np.mean(returns):0.2f} +- {np.std(returns):0.2f}]"
+                )
 
 
 class ClosedLoopCallback(tf.keras.callbacks.Callback):
@@ -144,7 +151,10 @@ class ClosedLoopCallback(tf.keras.callbacks.Callback):
 
 
 if __name__ == "__main__":
+    import gym
+
     env = gym.make("ALE/Breakout-v5")
+    # env = gymnasium.make("GymV26Environment-v0", env_id="ALE/Breakout-v5")
     env = wrap_deepmind(env)
 
     data = AtariCloningDatasetTF("breakout")
@@ -160,6 +170,11 @@ if __name__ == "__main__":
         metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
     )
     model.build((None, None, 84, 84, 4))
+
+    # env = gymnasium.make("ALE/Breakout-v5", render_mode="human")
+    # env = wrap_deepmind(env)
+    # run_closed_loop(model, env)
+
     model.summary()
     model.fit(
         trainloader,
@@ -169,6 +184,7 @@ if __name__ == "__main__":
     )
 
     # Visualize Atari game and play endlessly
+    # env = gymnasium.make("ALE/Breakout-v5", render_mode="human")
     env = gym.make("ALE/Breakout-v5", render_mode="human")
     env = wrap_deepmind(env)
     run_closed_loop(model, env)

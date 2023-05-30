@@ -33,17 +33,17 @@ class ConvBlock(nn.Module):
         super().__init__()
         self.conv1 = nn.Conv2d(4, 64, 5, padding=2, stride=2)
         self.conv2 = nn.Conv2d(64, 128, 5, padding=2, stride=2)
+        self.bn2 = nn.BatchNorm2d(128)
         self.conv3 = nn.Conv2d(128, 128, 5, padding=2, stride=2)
         self.conv4 = nn.Conv2d(128, 256, 5, padding=2, stride=2)
-        self.norm = nn.BatchNorm1d(256)
+        self.bn4 = nn.BatchNorm2d(256)
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
-        x = F.relu(self.conv2(x))
+        x = F.relu(self.bn2(self.conv2(x)))
         x = F.relu(self.conv3(x))
-        x = F.relu(self.conv4(x))
+        x = F.relu(self.bn4(self.conv4(x)))
         x = x.mean((-1, -2))  # Global average pooling
-        x = self.norm(x)
         return x
 
 
@@ -140,7 +140,6 @@ def run_closed_loop(model, env, num_episodes=None):
 
 
 if __name__ == "__main__":
-
     env = gym.make("ALE/Breakout-v5")
     # We need to wrap the environment with the Deepmind helper functions
     env = wrap_deepmind(env)
