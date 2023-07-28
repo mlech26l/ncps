@@ -25,7 +25,6 @@ class MixedMemoryRNN(tf.keras.layers.AbstractRNNCell):
 
         self.rnn_cell = rnn_cell
         self.forget_gate_bias = forget_gate_bias
-        print(f"mmRNN: {self.rnn_cell.state_size}")
 
     @property
     def state_size(self):
@@ -82,14 +81,12 @@ class MixedMemoryRNN(tf.keras.layers.AbstractRNNCell):
         new_memory_state = memory_state * forget_gate + input_activation * input_gate
         ct_input = tf.nn.tanh(new_memory_state) * output_gate  # LSTM output = ODE input
 
-        if isinstance(inputs, (tuple, list)) and len(inputs) > 1:
+        if (isinstance(inputs, tuple) or isinstance(inputs, list)) and len(inputs) > 1:
             # Input is a tuple -> Ct cell input should also be a tuple
             ct_input = (ct_input,) + inputs[1:]
 
         # Implementation choice on how to parametrize ODE component
-        if isinstance(self.rnn_cell.state_size, (tuple, list)) and not isinstance(
-            ct_state, (tuple, list)
-        ):
+        if (not isinstance(ct_state, tuple)) and (not isinstance(ct_state, list)):
             ct_state = [ct_state]
 
         ct_output, new_ct_state = self.rnn_cell(ct_input, ct_state, **kwargs)

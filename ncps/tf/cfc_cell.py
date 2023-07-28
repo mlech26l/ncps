@@ -184,9 +184,7 @@ class CfCCell(tf.keras.layers.AbstractRNNCell):
         else:
             # Regularly sampled mode (elapsed time = 1 second)
             t = 1.0
-        if isinstance(states, (tuple, list)):
-            states = states[0]
-        x = tf.keras.layers.Concatenate()([inputs, states])
+        x = tf.keras.layers.Concatenate()([inputs, states[0]])
         x = self.backbone_fn(x)
         if self.sparsity_mask is not None:
             ff1_kernel = self.ff1_kernel * self.sparsity_mask
@@ -216,7 +214,4 @@ class CfCCell(tf.keras.layers.AbstractRNNCell):
             else:
                 new_hidden = ff1 * (1.0 - t_interp) + t_interp * ff2
 
-        out_state = new_hidden
-        if isinstance(states, (tuple, list)):
-            out_state = [out_state]
-        return new_hidden, out_state
+        return new_hidden, [new_hidden]
