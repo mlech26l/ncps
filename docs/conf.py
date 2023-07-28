@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "Neural Circuit Policies"
-copyright = "2022, Mathias Lechner"
+copyright = "2023, Mathias Lechner"
 author = "Mathias Lechner"
 
 # The short X.Y version
