@@ -17,6 +17,7 @@ import numpy as np
 import tensorflow as tf
 from typing import Optional, Union
 
+
 # LeCun improved tanh activation
 # http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf
 def lecun_tanh(x):
@@ -106,7 +107,6 @@ class CfCCell(tf.keras.layers.AbstractRNNCell):
 
         backbone_layers = []
         for i in range(self._backbone_layers):
-
             backbone_layers.append(
                 tf.keras.layers.Dense(
                     self._backbone_units, self._activation, name=f"backbone{i}"
@@ -184,7 +184,9 @@ class CfCCell(tf.keras.layers.AbstractRNNCell):
         else:
             # Regularly sampled mode (elapsed time = 1 second)
             t = 1.0
-        x = tf.keras.layers.Concatenate()([inputs, states[0]])
+        if isinstance(states, (tuple, list)):
+            states = states[0]
+        x = tf.keras.layers.Concatenate()([inputs, states])
         x = self.backbone_fn(x)
         if self.sparsity_mask is not None:
             ff1_kernel = self.ff1_kernel * self.sparsity_mask
@@ -214,4 +216,7 @@ class CfCCell(tf.keras.layers.AbstractRNNCell):
             else:
                 new_hidden = ff1 * (1.0 - t_interp) + t_interp * ff2
 
-        return new_hidden, [new_hidden]
+        out_state = new_hidden
+        if isinstance(states, (tuple, list)):
+            out_state = [out_state]
+        return new_hidden, out_state
