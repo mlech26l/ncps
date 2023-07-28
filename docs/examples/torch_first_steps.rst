@@ -115,6 +115,9 @@ For the wiring we will use the ```AutoNCP`` class, which creates a NCP wiring di
 
 .. code-block:: python
 
+    out_features = 1
+    in_features = 2
+
     wiring = AutoNCP(16, out_features)  # 16 units, 1 motor neuron
 
     ltc_model = LTC(in_features, wiring, batch_first=True)
@@ -123,7 +126,6 @@ For the wiring we will use the ```AutoNCP`` class, which creates a NCP wiring di
         logger=pl.loggers.CSVLogger("log"),
         max_epochs=400,
         gradient_clip_val=1,  # Clip gradient to stabilize training
-        gpus=0,
     )
 
 Draw the wiring diagram of the network
