@@ -119,7 +119,9 @@ def run_closed_loop(model, env, num_episodes=None):
     with torch.no_grad():
         while True:
             # PyTorch require channel first images -> transpose data
-            obs = np.transpose(obs, [2, 0, 1]).astype(np.float32) / 255.0
+            obs = np.transpose(obs, [2, 0, 1]).astype(np.float32)
+            # Observation seems to be already normalized, see: https://github.com/mlech26l/ncps/issues/48#issuecomment-1572328370
+            # obs = np.transpose(obs, [2, 0, 1]).astype(np.float32) / 255.0
             # add batch and time dimension (with a single element in each)
             obs = torch.from_numpy(obs).unsqueeze(0).unsqueeze(0).to(device)
             pred, hx = model(obs, hx)
