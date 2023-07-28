@@ -10,6 +10,7 @@ implementation and `gymnasium[mujoco] <https://gymnasium.farama.org/environments
 
 
 .. image:: ../img/half_cheetah.png
+   :height: 200px
    :align: center
 
 
@@ -323,10 +324,8 @@ Once we have defined everything we can compare the two network architectures.
         fig.tight_layout()
         plt.savefig("cfc_vs_mlp.png")
 
-.. image:: ../img/cfc_vs_mlp.gif
+.. image:: ../img/cfc_vs_mlp.png
    :align: center
 
 As we have see in the plot above, although the MLP baseline policy network experiences a faster initial improvement, 
 the CfC policy network eventually outperforms the MLP baseline policy network, while also being more robust to noise.
-
-"""
