@@ -256,28 +256,17 @@ it can train a CfC policy network or an MLP baseline policy network.
 
         algo = PPO(config=config)
         history = {"reward": [], "reward_noise": [], "iteration": []}
-        best_r = -np.inf
-        best_checkpoint = None
         for iteration in range(1, num_iters + 1):
             algo.train()
             if iteration % 10 == 0 or iteration == 1:
                 history["iteration"].append(iteration)
-                current_rew = run_closed_loop(algo, rnn_cell_size)
-                history["reward"].append(current_rew)
+                history["reward"].append(run_closed_loop(algo, rnn_cell_size))
                 history["reward_noise"].append(
                     run_closed_loop(algo, rnn_cell_size, pertubation_level=0.1)
                 )
                 print(
                     f"{model_name} iteration {iteration}: {history['reward'][-1]:0.2f}, with noise: {history['reward_noise'][-1]:0.2f}"
                 )
-                if current_rew > best_r:
-                    best_r = current_rew
-                    print("Saving best checkpoint")
-                    best_checkpoint = algo.save()
-                elif iteration > 200 and current_rew < best_r - np.abs(best_r) * 0.3:
-                    print("Restoring checkpoint")
-                    algo.stop()
-                    algo = PPO.from_checkpoint(best_checkpoint)
         return history
 
 .. note::
