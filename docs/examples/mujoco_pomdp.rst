@@ -4,6 +4,9 @@ Partially Observabily Reinforcement Learning
 In this guide, we will train a CfC network to solve a partially observable Markov decision process (POMDP).
 In particular, we consider a partially observable version of the `HalfCheetah Mujoco environment <https://gymnasium.farama.org/environments/mujoco/half_cheetah/>`_. 
 Moreover, we will also evalute the trained policy when the observation is corrupted by noise to test the robustness of the learned policy.
+This tutorial serves as a beginner's guide to using CfC networks in reinforcement learning, 
+showing how to define a custom CfC network and how to use it with `rllib <https://docs.ray.io/en/latest/rllib/index.html>`_, as well as
+demonstrating the the advantages of RNNs in partially observable environments.
 
 Code is provided for TensorFlow and relies on `ray[rllib] <https://docs.ray.io/en/latest/rllib/index.html>`_ for it's `proximal policy optimization (PPO) <https://arxiv.org/abs/1707.06347>`_
 implementation and `gymnasium[mujoco] <https://gymnasium.farama.org/environments/mujoco/>`_ for the HalfCheetah environment.
