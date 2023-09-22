@@ -153,12 +153,14 @@ class CfCCell(nn.Module):
             # Cfc
             if self.sparsity_mask is not None:
                 ff2 = F.linear(x, self.ff2.weight * self.sparsity_mask, self.ff2.bias)
+                t_a = F.linear(x, self.time_a.weight * self.sparsity_mask, self.time_a.bias)
+                t_b = F.linear(x, self.time_b.weight * self.sparsity_mask, self.time_b.bias)
             else:
                 ff2 = self.ff2(x)
+                t_a = self.time_a(x)
+                t_b = self.time_b(x)
             ff1 = self.tanh(ff1)
             ff2 = self.tanh(ff2)
-            t_a = self.time_a(x)
-            t_b = self.time_b(x)
             t_interp = self.sigmoid(t_a * ts + t_b)
             if self.mode == "no_gate":
                 new_hidden = ff1 + t_interp * ff2
