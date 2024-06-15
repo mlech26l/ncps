@@ -43,11 +43,11 @@ class CfC(keras.layers.RNN):
 
         Examples::
 
-            >>> from ncps.tf import CfC
+            >>> from ncps.keras import CfC
             >>>
             >>> rnn = CfC(50)
             >>> x = keras.random.uniform((2, 10, 20))  # (B,L,C)
-            >>> y = keras.layers.RNN(x)
+            >>> y = rnn(x)
 
         :param units: Number of hidden units
         :param mixed_memory: Whether to augment the RNN by a `memory-cell <https://arxiv.org/abs/2006.04418>`_ to help learn long-term dependencies in the data (default False)

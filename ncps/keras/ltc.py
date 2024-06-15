@@ -43,7 +43,7 @@ class LTC(keras.layers.RNN):
             >>> from ncps.keras import LTC
             >>>
             >>> rnn = LTC(50)
-            >>> x = tf.random.uniform((2, 10, 20))  # (B,L,C)
+            >>> x = keras.random.uniform((2, 10, 20))  # (B,L,C)
             >>> y = rnn(x)
 
         .. Note::
@@ -51,12 +51,12 @@ class LTC(keras.layers.RNN):
 
         Examples::
 
-            >>> from ncps.tf import LTC
+            >>> from ncps.keras import LTC
             >>> from ncps.wirings import NCP
             >>>
             >>> wiring = NCP(10, 10, 8, 6, 6, 4, 4)
             >>> rnn = LTC(wiring)
-            >>> x = tf.random.uniform((2, 10, 20))  # (B,L,C)
+            >>> x = keras.random.uniform((2, 10, 20))  # (B,L,C)
             >>> y = rnn(x)
 
         :param units: Wiring (ncps.wirings.Wiring instance) or integer representing the number of (fully-connected) hidden units

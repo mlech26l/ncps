@@ -36,12 +36,12 @@ class LTCCell(keras.layers.Layer):
         . Note::
             This is an RNNCell that process single time-steps.
             To get a full RNN that can process sequences,
-            see `ncps.tf.LTC` or wrap the cell with a `keras.layers.RNN <https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN>`_.
+            see `ncps.keras.LTC` or wrap the cell with a `keras.layers.RNN <https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN>`_.
 
         Examples::
 
              >>> import ncps
-             >>> from ncps.tf import LTCCell
+             >>> from ncps.keras import LTCCell
              >>>
              >>> wiring = ncps.wirings.Random(16, output_dim=2, sparsity_level=0.5)
              >>> cell = LTCCell(wiring)
