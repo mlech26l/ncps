@@ -40,7 +40,7 @@ class CfCCell(keras.layers.Layer):
         .. Note::
             This is an RNNCell that process single time-steps.
             To get a full RNN that can process sequences,
-            see `ncps.tf.CfC` or wrap the cell with a `keras.layers.RNN <https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN>`_.
+            see `ncps.keras.CfC` or wrap the cell with a `keras.layers.RNN <https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN>`_.
 
 
         :param units: Number of hidden units

@@ -532,7 +532,7 @@ class NCP(Wiring):
                 polarity = self._rng.choice([-1, 1])
                 self.add_synapse(src, dest, polarity)
 
-        # If it happens that some commandneurons are not connected, connect them now
+        # If it happens that some command neurons are not connected, connect them now
         mean_command_fanout = int(
             self._num_motor_neurons * self._motor_fanin / self._num_command_neurons
         )
