@@ -11,9 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import os
+# import os
 # os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # Run on CPU
-os.environ["KERAS_BACKEND"] = "torch"
+# os.environ["KERAS_BACKEND"] = "torch"
 # os.environ["KERAS_BACKEND"] = "tensorflow"
 
 import keras
@@ -230,6 +230,7 @@ def test_ltc_rnn():
     model.compile(optimizer=keras.optimizers.Adam(0.01), loss="mean_squared_error")
     model.fit(x=data_x, y=data_y, batch_size=1, epochs=3)
 
+
 def test_ncps():
     input_size = 8
 
@@ -238,8 +239,9 @@ def test_ncps():
     data = keras.random.normal([3, input_size])
     hx = keras.ops.zeros([3, wiring.units])
     output, hx = ltc_cell(data, hx)
-    assert output.size() == (3, 4)
-    assert hx[0].size() == (3, wiring.units)
+    assert output.shape == (3, 4)
+    assert hx[0].shape == (3, wiring.units)
+
 
 def test_ncp_sizes():
     wiring = ncps.wirings.NCP(10, 10, 8, 6, 6, 4, 6)
@@ -248,25 +250,28 @@ def test_ncp_sizes():
     output = rnn(data)
     assert wiring.synapse_count > 0
     assert wiring.sensory_synapse_count > 0
-    assert output.size() == (5, 8)
+    assert output.shape == (5, 8)
+
 
 def test_auto_ncp():
     wiring = ncps.wirings.AutoNCP(16, 4)
     rnn = LTC(wiring)
     data = keras.random.normal([5, 3, 8])
     output = rnn(data)
-    assert output.size() == (5, 4)
+    assert output.shape == (5, 4)
+
 
 def test_ncp_cfc():
     wiring = ncps.wirings.NCP(10, 10, 8, 6, 6, 4, 6)
     rnn = CfC(wiring)
     data = keras.random.normal([5, 3, 8])
     output = rnn(data)
-    assert output.size() == (5, 8)
+    assert output.shape == (5, 8)
+
 
 def test_auto_ncp_cfc():
     wiring = ncps.wirings.AutoNCP(28, 10)
     rnn = CfC(wiring)
     data = keras.random.normal([5, 3, 8])
     output = rnn(data)
-    assert output.size() == (5, 10)
+    assert output.shape == (5, 10)
