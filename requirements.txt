@@ -1,4 +1,3 @@
-numpy
-tensorflow
-torch
-pytest
+numpy~=1.26.4
+keras~=3.3.3
+pytest~=8.2.2
