@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ncps import wirings
-import numpy as np
 import keras
+import numpy as np
 
 
 @keras.utils.register_keras_serializable(package="ncps", name="LTCCell")
@@ -333,14 +332,14 @@ class LTCCell(keras.layers.Layer):
         return outputs, [next_state]
 
     def get_config(self):
-        seralized = self._wiring.get_config()
-        seralized["input_mapping"] = self._input_mapping
-        seralized["output_mapping"] = self._output_mapping
-        seralized["ode_unfolds"] = self._ode_unfolds
-        seralized["epsilon"] = self._epsilon
-        return seralized
+        config = super(LTCCell, self).get_config()
+        config["wiring"] = self._wiring.get_config()
+        config["input_mapping"] = self._input_mapping
+        config["output_mapping"] = self._output_mapping
+        config["ode_unfolds"] = self._ode_unfolds
+        config["epsilon"] = self._epsilon
+        return config
 
     @classmethod
     def from_config(cls, config):
-        wiring = wirings.Wiring.from_config(config)
-        return cls(wiring=wiring, **config)
+        return cls(**config)

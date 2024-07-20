@@ -111,19 +111,21 @@ class Wiring:
 
     def get_config(self):
         return {
-            "adjacency_matrix": self.adjacency_matrix,
-            "sensory_adjacency_matrix": self.sensory_adjacency_matrix,
+            "units": self.units,
+            "adjacency_matrix": self.adjacency_matrix.tolist() if self.adjacency_matrix is not None else None,
+            "sensory_adjacency_matrix": self.sensory_adjacency_matrix.tolist() if self.sensory_adjacency_matrix is not None else None,
             "input_dim": self.input_dim,
             "output_dim": self.output_dim,
-            "units": self.units,
         }
 
     @classmethod
     def from_config(cls, config):
         # There might be a cleaner solution but it will work
         wiring = Wiring(config["units"])
-        wiring.adjacency_matrix = config["adjacency_matrix"]
-        wiring.sensory_adjacency_matrix = config["sensory_adjacency_matrix"]
+        if config["adjacency_matrix"] is not None:
+            wiring.adjacency_matrix = np.array(config["adjacency_matrix"])
+        if config["sensory_adjacency_matrix"] is not None:
+            wiring.sensory_adjacency_matrix = np.array(config["sensory_adjacency_matrix"])
         wiring.input_dim = config["input_dim"]
         wiring.output_dim = config["output_dim"]
 

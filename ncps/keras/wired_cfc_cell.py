@@ -44,14 +44,14 @@ def split_tensor(input_tensor, num_or_size_splits, axis=0):
 class WiredCfCCell(keras.layers.Layer):
     def __init__(
         self,
-        wiring,
+        wiring: wirings.Wiring,
         fully_recurrent=True,
         mode="default",
         activation="lecun_tanh",
         **kwargs,
     ):
         super().__init__(**kwargs)
-        self._wiring = wiring
+        self.wiring = wiring
         allowed_modes = ["default", "pure", "no_gate"]
         if mode not in allowed_modes:
             raise ValueError(
@@ -68,15 +68,15 @@ class WiredCfCCell(keras.layers.Layer):
 
     @property
     def state_size(self):
-        return self._wiring.units
-        # return [
-        #     len(self._wiring.get_neurons_of_layer(i))
-        #     for i in range(self._wiring.num_layers)
-        # ]
+        return self.wiring.units
 
     @property
     def input_size(self):
-        return self._wiring.input_dim
+        return self.wiring.input_dim
+
+    @property
+    def output_size(self):
+        return self.wiring.output_dim
 
     def build(self, input_shape):
         if isinstance(input_shape[0], tuple):
@@ -85,34 +85,37 @@ class WiredCfCCell(keras.layers.Layer):
         else:
             input_dim = input_shape[-1]
 
-        self._wiring.build(input_dim)
-        for i in range(self._wiring.num_layers):
-            layer_i_neurons = self._wiring.get_neurons_of_layer(i)
+        self.wiring.build(input_dim)
+        for i in range(self.wiring.num_layers):
+            layer_i_neurons = self.wiring.get_neurons_of_layer(i)
             if i == 0:
-                input_sparsity = self._wiring.sensory_adjacency_matrix[
+                input_sparsity = self.wiring.sensory_adjacency_matrix[
                     :, layer_i_neurons
                 ]
             else:
-                prev_layer_neurons = self._wiring.get_neurons_of_layer(i - 1)
-                input_sparsity = self._wiring.adjacency_matrix[:, layer_i_neurons]
+                prev_layer_neurons = self.wiring.get_neurons_of_layer(i - 1)
+                input_sparsity = self.wiring.adjacency_matrix[:, layer_i_neurons]
                 input_sparsity = input_sparsity[prev_layer_neurons, :]
             if self.fully_recurrent:
                 recurrent_sparsity = np.ones(
                     (len(layer_i_neurons), len(layer_i_neurons)), dtype=np.int32
                 )
             else:
-                recurrent_sparsity = self._wiring.adjacency_matrix[
+                recurrent_sparsity = self.wiring.adjacency_matrix[
                     layer_i_neurons, layer_i_neurons
                 ]
+            sparsity_mask = keras.ops.convert_to_tensor(
+                np.concatenate([input_sparsity, recurrent_sparsity], axis=0),
+                dtype="float32",
+            )
             cell = CfCCell(
                 len(layer_i_neurons),
-                input_sparsity,
-                recurrent_sparsity,
                 mode=self.mode,
                 activation=self._activation,
                 backbone_units=0,
                 backbone_layers=0,
                 backbone_dropout=0,
+                sparsity_mask=sparsity_mask,
             )
 
             cell_in_shape = (None, input_sparsity.shape[0])
@@ -132,8 +135,8 @@ class WiredCfCCell(keras.layers.Layer):
             t = 1.0
 
         states = split_tensor(states[0], self._layer_sizes, axis=-1)
-        assert len(states) == self._wiring.num_layers, \
-            f'Incompatible num of states [{len(states)}] and wiring layers [{self._wiring.num_layers}]'
+        assert len(states) == self.wiring.num_layers, \
+            f'Incompatible num of states [{len(states)}] and wiring layers [{self.wiring.num_layers}]'
         new_hiddens = []
         for i, cfc_layer in enumerate(self._cfc_layers):
             if t == 1.0:
@@ -144,24 +147,22 @@ class WiredCfCCell(keras.layers.Layer):
             new_hiddens.append(new_hidden[0])
             inputs = output
 
-        assert len(new_hiddens) == self._wiring.num_layers, \
-            f'Internal error new_hiddens [{new_hiddens}] != num_layers [{self._wiring.num_layers}]'
-        if self._wiring.output_dim != output.shape[-1]:
-            output = output[:, 0: self._wiring.output_dim]
+        assert len(new_hiddens) == self.wiring.num_layers, \
+            f'Internal error new_hiddens [{new_hiddens}] != num_layers [{self.wiring.num_layers}]'
+        if self.wiring.output_dim != output.shape[-1]:
+            output = output[:, 0: self.wiring.output_dim]
 
         new_hiddens = keras.ops.concatenate(new_hiddens, axis=-1)
         return output, new_hiddens
 
     def get_config(self):
-        seralized = self._wiring.get_config()
-        seralized["mode"] = self.mode
-        seralized["activation"] = self._activation
-        seralized["backbone_units"] = None
-        seralized["backbone_layers"] = None
-        seralized["backbone_dropout"] = None
-        return seralized
+        config = super(WiredCfCCell, self).get_config()
+        config["wiring"] = self.wiring
+        config["fully_recurrent"] = self.fully_recurrent
+        config["mode"] = self.mode
+        config["activation"] = self._activation
+        return config
 
     @classmethod
     def from_config(cls, config):
-        wiring = wirings.Wiring.from_config(config)
-        return cls(wiring=wiring, **config)
+        return cls(**config)

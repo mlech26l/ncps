@@ -19,22 +19,24 @@ from . import LTCCell, MixedMemoryRNN
 
 @keras.utils.register_keras_serializable(package="ncps", name="LTC")
 class LTC(keras.layers.RNN):
+    name = "LTC"
+
     def __init__(
-        self,
-        units,
-        mixed_memory: bool = False,
-        input_mapping="affine",
-        output_mapping="affine",
-        ode_unfolds=6,
-        epsilon=1e-8,
-        initialization_ranges=None,
-        return_sequences: bool = False,
-        return_state: bool = False,
-        go_backwards: bool = False,
-        stateful: bool = False,
-        unroll: bool = False,
-        time_major: bool = False,
-        **kwargs,
+            self,
+            units,
+            mixed_memory: bool = False,
+            input_mapping="affine",
+            output_mapping="affine",
+            ode_unfolds=6,
+            epsilon=1e-8,
+            initialization_ranges=None,
+            return_sequences: bool = False,
+            return_state: bool = False,
+            go_backwards: bool = False,
+            stateful: bool = False,
+            unroll: bool = False,
+            zero_output_for_mask: bool = False,
+            **kwargs,
     ):
         """Applies a `Liquid time-constant (LTC) <https://ojs.aaai.org/index.php/AAAI/article/view/16936>`_ RNN to an input sequence.
 
@@ -71,17 +73,21 @@ class LTC(keras.layers.RNN):
         :param go_backwards: If True, the input sequence will be process from back to the front (default False)
         :param stateful: Whether to remember the last hidden state of the previous inference/training batch and use it as initial state for the next inference/training batch (default False)
         :param unroll: Whether to unroll the graph, i.e., may increase speed at the cost of more memory (default False)
-        :param time_major: Whether the time or batch dimension is the first (0-th) dimension (default False)
+        :param zero_output_for_mask: Whether the output should use zeros for the masked timesteps. (default False)
+                                     Note that this field is only used when `return_sequences` is `True` and `mask` is provided.
+                                     It can be useful if you want to reuse the raw output sequence of
+                                     the RNN without interference from the masked timesteps, e.g.,
+                                     merging bidirectional RNNs.
         :param kwargs:
         """
 
         if isinstance(units, ncps.wirings.Wiring):
-            wiring = units
+            self.wiring = units
         else:
-            wiring = ncps.wirings.FullyConnected(units)
+            self.wiring = ncps.wirings.FullyConnected(units)
 
         cell = LTCCell(
-            wiring=wiring,
+            wiring=self.wiring,
             input_mapping=input_mapping,
             output_mapping=output_mapping,
             ode_unfolds=ode_unfolds,
@@ -98,6 +104,24 @@ class LTC(keras.layers.RNN):
             go_backwards,
             stateful,
             unroll,
-            time_major,
+            zero_output_for_mask,
             **kwargs,
         )
+
+    def get_config(self):
+        is_mixed_memory = isinstance(self.cell, MixedMemoryRNN)
+        cell: LTCCell = self.cell.rnn_cell if is_mixed_memory else self.cell
+        cell_config = cell.get_config()
+        config = super(LTC, self).get_config()
+        config["units"] = self.wiring
+        config["mixed_memory"] = is_mixed_memory
+        return {**cell_config, **config}
+
+    @classmethod
+    def from_config(cls, config, custom_objects=None):
+        # The following parameters are recreated by the LTC constructor
+        del config["cell"]
+        del config["wiring"]
+        units = ncps.wirings.Wiring.from_config(config["units"]["config"])
+        del config["units"]
+        return cls(units, **config)
