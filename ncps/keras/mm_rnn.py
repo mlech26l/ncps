@@ -29,6 +29,13 @@ class MixedMemoryRNN(keras.layers.Layer):
         return [self.flat_size, self.rnn_cell.state_size]
 
     @property
+    def output_size(self):
+        if hasattr(self.rnn_cell, "output_size"):
+            return self.rnn_cell.output_size
+        else:
+            return self.rnn_cell.state_size
+
+    @property
     def flat_size(self):
         if isinstance(self.rnn_cell.state_size, int):
             return self.rnn_cell.state_size

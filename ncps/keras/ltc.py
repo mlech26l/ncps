@@ -82,12 +82,12 @@ class LTC(keras.layers.RNN):
         """
 
         if isinstance(units, ncps.wirings.Wiring):
-            self.wiring = units
+            wiring = units
         else:
-            self.wiring = ncps.wirings.FullyConnected(units)
+            wiring = ncps.wirings.FullyConnected(units)
 
         cell = LTCCell(
-            wiring=self.wiring,
+            wiring=wiring,
             input_mapping=input_mapping,
             output_mapping=output_mapping,
             ode_unfolds=ode_unfolds,
@@ -113,7 +113,7 @@ class LTC(keras.layers.RNN):
         cell: LTCCell = self.cell.rnn_cell if is_mixed_memory else self.cell
         cell_config = cell.get_config()
         config = super(LTC, self).get_config()
-        config["units"] = self.wiring
+        config["units"] = cell.wiring
         config["mixed_memory"] = is_mixed_memory
         return {**cell_config, **config}
 
@@ -122,6 +122,7 @@ class LTC(keras.layers.RNN):
         # The following parameters are recreated by the LTC constructor
         del config["cell"]
         del config["wiring"]
-        units = ncps.wirings.Wiring.from_config(config["units"]["config"])
+        wiring_class = getattr(ncps.wirings, config["units"]["class_name"])
+        units = wiring_class.from_config(config["units"]["config"])
         del config["units"]
         return cls(units, **config)
