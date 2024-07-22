@@ -11,7 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import inspect
 # import os
+
 # os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # Run on CPU
 # os.environ["KERAS_BACKEND"] = "torch"
 # os.environ["KERAS_BACKEND"] = "tensorflow"
@@ -670,3 +672,197 @@ def test_bidirectional_equivalence_cfc():
     assert isinstance(bi_layer1.backward_layer.cell, ncps.keras.CfCCell)
     assert isinstance(bi_layer2.forward_layer.cell, ncps.keras.CfCCell)
     assert isinstance(bi_layer2.backward_layer.cell, ncps.keras.CfCCell)
+
+
+def test_save_and_load_ltc():
+    data_x, data_y = prepare_test_data()
+    print("data_y.shape: ", str(data_y.shape))
+    model = keras.models.Sequential(
+        [
+            keras.layers.InputLayer(input_shape=(None, 2)),
+            LTC(28, return_sequences=True),
+            keras.layers.Dense(1),
+        ]
+    )
+    model.compile(optimizer=keras.optimizers.Adam(0.01), loss="mean_squared_error")
+    model.fit(x=data_x, y=data_y, batch_size=1, epochs=3)
+    keras_file = f"{inspect.currentframe().f_code.co_name}.keras"
+    model.save(keras_file)
+    loaded_model = keras.models.load_model(keras_file)
+    assert isinstance(loaded_model, keras.models.Sequential)
+
+    def prune_details(config):
+        del config['cell']['config']['name']
+        config['units'] = config['units'].get_config()
+        return config
+
+    assert prune_details(loaded_model.layers[0].get_config()) == prune_details(model.layers[0].get_config())
+    assert all([np.array_equal(l, m) for (l, m) in zip(loaded_model.get_weights(), model.get_weights())])
+
+
+def test_save_and_load_ltc_ncp():
+    data_x, data_y = prepare_test_data()
+    print("data_y.shape: ", str(data_y.shape))
+    wiring = ncps.wirings.AutoNCP(28, 10)
+    model = keras.models.Sequential(
+        [
+            keras.layers.InputLayer(input_shape=(None, 2)),
+            LTC(wiring, return_sequences=True),
+            keras.layers.Dense(1),
+        ]
+    )
+    model.compile(optimizer=keras.optimizers.Adam(0.01), loss="mean_squared_error")
+    model.fit(x=data_x, y=data_y, batch_size=1, epochs=3)
+    keras_file = f"{inspect.currentframe().f_code.co_name}.keras"
+    model.save(keras_file)
+    loaded_model = keras.models.load_model(keras_file)
+    assert isinstance(loaded_model, keras.models.Sequential)
+
+    def prune_details(config):
+        del config['cell']['config']['name']
+        config['units'] = config['units'].get_config()
+        return config
+
+    assert prune_details(loaded_model.layers[0].get_config()) == prune_details(model.layers[0].get_config())
+    assert all([np.array_equal(l, m) for (l, m) in zip(loaded_model.get_weights(), model.get_weights())])
+
+
+def test_save_and_load_cfc():
+    data_x, data_y = prepare_test_data()
+    print("data_y.shape: ", str(data_y.shape))
+    model = keras.models.Sequential(
+        [
+            keras.layers.InputLayer(input_shape=(None, 2)),
+            CfC(28, return_sequences=True),
+            keras.layers.Dense(1),
+        ]
+    )
+    model.compile(optimizer=keras.optimizers.Adam(0.01), loss="mean_squared_error")
+    model.fit(x=data_x, y=data_y, batch_size=1, epochs=3)
+    keras_file = f"{inspect.currentframe().f_code.co_name}.keras"
+    model.save(keras_file)
+    loaded_model = keras.models.load_model(keras_file)
+    assert isinstance(loaded_model, keras.models.Sequential)
+
+    def prune_details(config):
+        del config['cell']['config']['name']
+        return config
+
+    assert prune_details(loaded_model.layers[0].get_config()) == prune_details(model.layers[0].get_config())
+    assert all([np.array_equal(l, m) for (l, m) in zip(loaded_model.get_weights(), model.get_weights())])
+
+
+def test_save_and_load_cfc_ncp():
+    data_x, data_y = prepare_test_data()
+    print("data_y.shape: ", str(data_y.shape))
+    wiring = ncps.wirings.AutoNCP(28, 10)
+    model = keras.models.Sequential(
+        [
+            keras.layers.InputLayer(input_shape=(None, 2)),
+            CfC(wiring, return_sequences=True),
+            keras.layers.Dense(1),
+        ]
+    )
+    model.compile(optimizer=keras.optimizers.Adam(0.01), loss="mean_squared_error")
+    model.fit(x=data_x, y=data_y, batch_size=1, epochs=3)
+    keras_file = f"{inspect.currentframe().f_code.co_name}.keras"
+    model.save(keras_file)
+    loaded_model = keras.models.load_model(keras_file)
+    assert isinstance(loaded_model, keras.models.Sequential)
+
+    def prune_details(config):
+        del config['cell']['config']['name']
+        del config['activation']
+        del config['cell']['config']['activation']
+        config['units'] = config['units'].get_config()
+        config['wiring'] = config['wiring'].get_config()
+        return config
+
+    assert prune_details(loaded_model.layers[0].get_config()) == prune_details(model.layers[0].get_config())
+    assert all([np.array_equal(l, m) for (l, m) in zip(loaded_model.get_weights(), model.get_weights())])
+
+
+def test_save_and_load_bidirectional_cfc_ncp():
+    data_x, data_y = prepare_test_data()
+    print("data_y.shape: ", str(data_y.shape))
+    wiring = ncps.wirings.AutoNCP(28, 10)
+    model = keras.models.Sequential(
+        [
+            keras.layers.InputLayer(input_shape=(None, 2)),
+            keras.layers.Bidirectional(CfC(wiring, return_sequences=True)),
+            keras.layers.Dense(1),
+        ]
+    )
+    model.compile(optimizer=keras.optimizers.Adam(0.01), loss="mean_squared_error")
+    model.fit(x=data_x, y=data_y, batch_size=1, epochs=3)
+    keras_file = f"{inspect.currentframe().f_code.co_name}.keras"
+    model.save(keras_file)
+    loaded_model = keras.models.load_model(keras_file)
+    assert isinstance(loaded_model, keras.models.Sequential)
+
+    def prune_details(config):
+        del config['backward_layer']['config']['cell']['config']['name']
+        del config['layer']['config']['cell']['config']['name']
+        config['backward_layer']['build_config']['input_shape'] = list(config['layer']['build_config']['input_shape'])
+        config['layer']['build_config']['input_shape'] = list(config['layer']['build_config']['input_shape'])
+        return config
+
+    assert prune_details(loaded_model.layers[0].get_config()) == prune_details(model.layers[0].get_config())
+    assert all([np.array_equal(l, m) for (l, m) in zip(loaded_model.get_weights(), model.get_weights())])
+
+
+def test_save_and_load_bidirectional_cfc_ncp_mixed_memory():
+    data_x, data_y = prepare_test_data()
+    print("data_y.shape: ", str(data_y.shape))
+    wiring = ncps.wirings.AutoNCP(28, 10)
+    model = keras.models.Sequential(
+        [
+            keras.layers.InputLayer(input_shape=(None, 2)),
+            keras.layers.Bidirectional(CfC(wiring, return_sequences=True, mixed_memory=True)),
+            keras.layers.Dense(1),
+        ]
+    )
+    model.compile(optimizer=keras.optimizers.Adam(0.01), loss="mean_squared_error")
+    model.fit(x=data_x, y=data_y, batch_size=1, epochs=3)
+    keras_file = f"{inspect.currentframe().f_code.co_name}.keras"
+    model.save(keras_file)
+    loaded_model = keras.models.load_model(keras_file)
+    assert isinstance(loaded_model, keras.models.Sequential)
+
+    def prune_details(config):
+        del config['backward_layer']['config']['cell']['config']['rnn_cell']['name']
+        del config['layer']['config']['cell']['config']['rnn_cell']['name']
+        config['backward_layer']['build_config']['input_shape'] = list(config['layer']['build_config']['input_shape'])
+        config['layer']['build_config']['input_shape'] = list(config['layer']['build_config']['input_shape'])
+        return config
+
+    assert prune_details(loaded_model.layers[0].get_config()) == prune_details(model.layers[0].get_config())
+    assert all([np.array_equal(l, m) for (l, m) in zip(loaded_model.get_weights(), model.get_weights())])
+
+
+def test_save_and_load_weights_only_bidirectional_cfc_ncp():
+    data_x, data_y = prepare_test_data()
+    print("data_y.shape: ", str(data_y.shape))
+    wiring = ncps.wirings.AutoNCP(28, 10)
+    model = keras.models.Sequential(
+        [
+            keras.layers.InputLayer(input_shape=(None, 2)),
+            keras.layers.Bidirectional(CfC(wiring, return_sequences=True)),
+            keras.layers.Dense(1),
+        ]
+    )
+    model2 = keras.models.Sequential(
+        [
+            keras.layers.InputLayer(input_shape=(None, 2)),
+            keras.layers.Bidirectional(CfC(wiring, return_sequences=True)),
+            keras.layers.Dense(1),
+        ]
+    )
+    model.compile(optimizer=keras.optimizers.Adam(0.01), loss="mean_squared_error")
+    model.fit(x=data_x, y=data_y, batch_size=1, epochs=3)
+    model2.compile(optimizer=keras.optimizers.Adam(0.01), loss="mean_squared_error")
+    keras_file = f"{inspect.currentframe().f_code.co_name}.keras"
+    model.save(keras_file)
+    model2.load_weights(keras_file)
+
+    assert all([np.array_equal(l, m) for (l, m) in zip(model2.get_weights(), model.get_weights())])

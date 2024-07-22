@@ -81,29 +81,24 @@ class CfCCell(keras.layers.Layer):
         return self.units
 
     def build(self, input_shape):
-        if isinstance(input_shape[0], tuple) or isinstance(
-            input_shape[0], keras.KerasTensor
-        ):
+        if isinstance(input_shape[0], tuple) or isinstance(input_shape[0], keras.KerasTensor):
             # Nested tuple -> First item represent feature dimension
             input_dim = input_shape[0][-1]
         else:
             input_dim = input_shape[-1]
 
-        backbone_layers = []
-        for i in range(self._backbone_layers):
-            backbone_layers.append(
-                keras.layers.Dense(
-                    self._backbone_units, self._activation, name=f"backbone{i}"
-                )
-            )
-            backbone_layers.append(keras.layers.Dropout(self._backbone_dropout))
-            self.backbone_fn = keras.models.Sequential(backbone_layers)
+        if self._backbone_layers > 0:
+            backbone_layers = []
+            for i in range(self._backbone_layers):
+                backbone_layers.append(keras.layers.Dense(self._backbone_units, self._activation, name=f"backbone{i}"))
+                backbone_layers.append(keras.layers.Dropout(self._backbone_dropout))
 
-        cat_shape = int(
-            self.state_size + input_dim
-            if self._backbone_layers == 0
-            else self._backbone_units
-        )
+            self.backbone_fn = keras.models.Sequential(backbone_layers)
+            self.backbone_fn.build((None, self.state_size + input_dim))
+            cat_shape = int(self._backbone_units)
+        else:
+            cat_shape = int(self.state_size + input_dim)
+
         if self.mode == "pure":
             self.ff1_kernel = self.add_weight(
                 shape=(cat_shape, self.state_size),
@@ -158,6 +153,11 @@ class CfCCell(keras.layers.Layer):
             #     self.ff2.build((None, self.sparsity_mask.shape[0]))
             self.time_a = keras.layers.Dense(self.state_size, name="time_a")
             self.time_b = keras.layers.Dense(self.state_size, name="time_b")
+            input_shape = (None, self.state_size + input_dim)
+            if self._backbone_layers > 0:
+                input_shape = self.backbone_fn.output_shape
+            self.time_a.build(input_shape)
+            self.time_b.build(input_shape)
         self.built = True
 
     def call(self, inputs, states, **kwargs):

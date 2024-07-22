@@ -22,7 +22,7 @@ def split_tensor(input_tensor, num_or_size_splits, axis=0):
         A list of tensors resulting from splitting the input tensor.
     """
     input_shape = keras.ops.shape(input_tensor)
-    tensor_shape = input_shape[:axis] + (-1,) + input_shape[axis+1:]
+    tensor_shape = input_shape[:axis] + (-1,) + input_shape[axis + 1:]
 
     if isinstance(num_or_size_splits, int):
         split_sizes = [input_shape[axis] // num_or_size_splits] * num_or_size_splits
@@ -43,12 +43,12 @@ def split_tensor(input_tensor, num_or_size_splits, axis=0):
 @keras.utils.register_keras_serializable(package="ncps", name="WiredCfCCell")
 class WiredCfCCell(keras.layers.Layer):
     def __init__(
-        self,
-        wiring: wirings.Wiring,
-        fully_recurrent=True,
-        mode="default",
-        activation="lecun_tanh",
-        **kwargs,
+            self,
+            wiring: wirings.Wiring,
+            fully_recurrent=True,
+            mode="default",
+            activation="lecun_tanh",
+            **kwargs,
     ):
         super().__init__(**kwargs)
         self.wiring = wiring
@@ -89,21 +89,15 @@ class WiredCfCCell(keras.layers.Layer):
         for i in range(self.wiring.num_layers):
             layer_i_neurons = self.wiring.get_neurons_of_layer(i)
             if i == 0:
-                input_sparsity = self.wiring.sensory_adjacency_matrix[
-                    :, layer_i_neurons
-                ]
+                input_sparsity = self.wiring.sensory_adjacency_matrix[:, layer_i_neurons]
             else:
                 prev_layer_neurons = self.wiring.get_neurons_of_layer(i - 1)
                 input_sparsity = self.wiring.adjacency_matrix[:, layer_i_neurons]
                 input_sparsity = input_sparsity[prev_layer_neurons, :]
             if self.fully_recurrent:
-                recurrent_sparsity = np.ones(
-                    (len(layer_i_neurons), len(layer_i_neurons)), dtype=np.int32
-                )
+                recurrent_sparsity = np.ones((len(layer_i_neurons), len(layer_i_neurons)), dtype=np.int32)
             else:
-                recurrent_sparsity = self.wiring.adjacency_matrix[
-                    layer_i_neurons, layer_i_neurons
-                ]
+                recurrent_sparsity = self.wiring.adjacency_matrix[layer_i_neurons, layer_i_neurons]
             sparsity_mask = keras.ops.convert_to_tensor(
                 np.concatenate([input_sparsity, recurrent_sparsity], axis=0),
                 dtype="float32",
@@ -119,7 +113,7 @@ class WiredCfCCell(keras.layers.Layer):
             )
 
             cell_in_shape = (None, input_sparsity.shape[0])
-            # cell.build(cell_in_shape)
+            cell.build(cell_in_shape)
             self._cfc_layers.append(cell)
 
         self._layer_sizes = [l.units for l in self._cfc_layers]

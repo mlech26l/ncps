@@ -119,7 +119,7 @@ class CfC(keras.layers.RNN):
 
     @classmethod
     def from_config(cls, config, custom_objects=None):
-        # The following parameters are recreated by the LTC constructor
+        # The following parameters are recreated by the constructor
         del config["cell"]
         if "wiring" in config:
             wiring_class = getattr(ncps.wirings, config["units"]["class_name"])
