@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: tensorflow/tensorflow:2.16.1
+      image: tensorflow/tensorflow:2.17.0
       env:
         KERAS_BACKEND: tensorflow
       volumes:

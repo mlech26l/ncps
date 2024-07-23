@@ -99,17 +99,18 @@ class CfCCell(keras.layers.Layer):
         else:
             cat_shape = int(self.state_size + input_dim)
 
+        self.ff1_kernel = self.add_weight(
+            shape=(cat_shape, self.state_size),
+            initializer="glorot_uniform",
+            name="ff1_weight",
+        )
+        self.ff1_bias = self.add_weight(
+            shape=(self.state_size,),
+            initializer="zeros",
+            name="ff1_bias",
+        )
+
         if self.mode == "pure":
-            self.ff1_kernel = self.add_weight(
-                shape=(cat_shape, self.state_size),
-                initializer="glorot_uniform",
-                name="ff1_weight",
-            )
-            self.ff1_bias = self.add_weight(
-                shape=(self.state_size,),
-                initializer="zeros",
-                name="ff1_bias",
-            )
             self.w_tau = self.add_weight(
                 shape=(1, self.state_size),
                 initializer=keras.initializers.Zeros(),
@@ -121,16 +122,6 @@ class CfCCell(keras.layers.Layer):
                 name="A",
             )
         else:
-            self.ff1_kernel = self.add_weight(
-                shape=(cat_shape, self.state_size),
-                initializer="glorot_uniform",
-                name="ff1_weight",
-            )
-            self.ff1_bias = self.add_weight(
-                shape=(self.state_size,),
-                initializer="zeros",
-                name="ff1_bias",
-            )
             self.ff2_kernel = self.add_weight(
                 shape=(cat_shape, self.state_size),
                 initializer="glorot_uniform",
@@ -142,15 +133,6 @@ class CfCCell(keras.layers.Layer):
                 name="ff2_bias",
             )
 
-            #  = keras.layers.Dense(
-            #     , self._activation, name=f"{self.name}/ff1"
-            # )
-            # self.ff2 = keras.layers.Dense(
-            #     self.state_size, self._activation, name=f"{self.name}/ff2"
-            # )
-            # if self.sparsity_mask is not None:
-            #     self.ff1.build((None,))
-            #     self.ff2.build((None, self.sparsity_mask.shape[0]))
             self.time_a = keras.layers.Dense(self.state_size, name="time_a")
             self.time_b = keras.layers.Dense(self.state_size, name="time_b")
             input_shape = (None, self.state_size + input_dim)
@@ -202,16 +184,18 @@ class CfCCell(keras.layers.Layer):
         return new_hidden, [new_hidden]
 
     def get_config(self):
-        config = super(CfCCell, self).get_config()
-        config["units"] = self.units
-        config["mode"] = self.mode
-        config["activation"] = self._activation
-        config["backbone_units"] = self._backbone_units
-        config["backbone_layers"] = self._backbone_layers
-        config["backbone_dropout"] = self._backbone_dropout
-        config["sparsity_mask"] = self.sparsity_mask
-        return config
+        config = {
+            "units": self.units,
+            "mode": self.mode,
+            "activation": self._activation,
+            "backbone_units": self._backbone_units,
+            "backbone_layers": self._backbone_layers,
+            "backbone_dropout": self._backbone_dropout,
+            "sparsity_mask": self.sparsity_mask,
+        }
+        base_config = super().get_config()
+        return {**base_config, **config}
 
     @classmethod
-    def from_config(cls, config):
+    def from_config(cls, config, custom_objects=None):
         return cls(**config)

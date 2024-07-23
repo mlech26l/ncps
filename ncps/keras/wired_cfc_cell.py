@@ -150,12 +150,14 @@ class WiredCfCCell(keras.layers.Layer):
         return output, new_hiddens
 
     def get_config(self):
-        config = super(WiredCfCCell, self).get_config()
-        config["wiring"] = self.wiring
-        config["fully_recurrent"] = self.fully_recurrent
-        config["mode"] = self.mode
-        config["activation"] = self._activation
-        return config
+        config = {
+            "wiring": self.wiring,
+            "fully_recurrent": self.fully_recurrent,
+            "mode": self.mode,
+            "activation": self._activation,
+        }
+        base_config = super().get_config()
+        return {**base_config, **config}
 
     @classmethod
     def from_config(cls, config):

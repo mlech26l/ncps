@@ -377,6 +377,42 @@ def test_fit_bidirectional_auto_ncp_ltc_mixed_memory():
     model.fit(x=data_x, y=data_y, batch_size=1, epochs=3)
 
 
+def test_fit_cfc_mixed_memory_fix_batch_size_no_sequences():
+    data_x, data_y = prepare_test_data()
+    data_x = np.resize(data_x, (2, 48, 2))
+    data_y = np.resize(data_y, (2, 1, 2))
+    print("data_y.shape: ", str(data_y.shape))
+    model = keras.models.Sequential(
+        [
+            keras.layers.InputLayer(input_shape=(48, 2), batch_size=1),
+            CfC(28,
+                mixed_memory=True,
+                backbone_units=64,
+                backbone_dropout=0.3,
+                backbone_layers=2,
+                return_sequences=False),
+            keras.layers.Dense(1),
+        ]
+    )
+    model.compile(optimizer=keras.optimizers.Adam(0.01), loss="mean_squared_error")
+    model.fit(x=data_x, y=data_y, batch_size=2, epochs=3)
+
+
+def test_fit_bidirectional_cfc_with_sum():
+    data_x, data_y = prepare_test_data()
+    print("data_y.shape: ", str(data_y.shape))
+    model = keras.models.Sequential(
+        [
+            keras.layers.InputLayer(input_shape=(None, 2)),
+            keras.layers.Bidirectional(CfC(28, return_sequences=False, unroll=True, mixed_memory=True),
+                                       merge_mode='sum'),
+            keras.layers.Dense(1),
+        ]
+    )
+    model.compile(optimizer=keras.optimizers.Adam(0.01), loss="mean_squared_error")
+    model.fit(x=data_x, y=data_y, batch_size=1, epochs=3)
+
+
 def test_wiring_graph_auto_ncp_ltc():
     data_x, data_y = prepare_test_data()
     print("data_y.shape: ", str(data_y.shape))
@@ -840,29 +876,28 @@ def test_save_and_load_bidirectional_cfc_ncp_mixed_memory():
     assert all([np.array_equal(l, m) for (l, m) in zip(loaded_model.get_weights(), model.get_weights())])
 
 
-def test_save_and_load_weights_only_bidirectional_cfc_ncp():
+def test_save_and_load_weights_only_bidirectional_cfc():
     data_x, data_y = prepare_test_data()
     print("data_y.shape: ", str(data_y.shape))
-    wiring = ncps.wirings.AutoNCP(28, 10)
     model = keras.models.Sequential(
         [
             keras.layers.InputLayer(input_shape=(None, 2)),
-            keras.layers.Bidirectional(CfC(wiring, return_sequences=True)),
+            keras.layers.Bidirectional(CfC(28, return_sequences=True)),
             keras.layers.Dense(1),
         ]
     )
     model2 = keras.models.Sequential(
         [
             keras.layers.InputLayer(input_shape=(None, 2)),
-            keras.layers.Bidirectional(CfC(wiring, return_sequences=True)),
+            keras.layers.Bidirectional(CfC(28, return_sequences=True)),
             keras.layers.Dense(1),
         ]
     )
     model.compile(optimizer=keras.optimizers.Adam(0.01), loss="mean_squared_error")
     model.fit(x=data_x, y=data_y, batch_size=1, epochs=3)
-    model2.compile(optimizer=keras.optimizers.Adam(0.01), loss="mean_squared_error")
     keras_file = f"{inspect.currentframe().f_code.co_name}.keras"
     model.save(keras_file)
+    model2.compile(optimizer=keras.optimizers.Adam(0.01), loss="mean_squared_error")
     model2.load_weights(keras_file)
 
     assert all([np.array_equal(l, m) for (l, m) in zip(model2.get_weights(), model.get_weights())])

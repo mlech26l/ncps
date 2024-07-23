@@ -68,7 +68,10 @@ class MixedMemoryRNN(keras.layers.Layer):
 
     def call(self, sequences, initial_state=None, mask=None, training=False, **kwargs):
         memory_state, ct_state = initial_state
-        flat_ct_state = keras.ops.concatenate([ct_state], axis=-1)
+        if isinstance(ct_state, list):
+            flat_ct_state = keras.ops.concatenate(ct_state, axis=-1)
+        else:
+            flat_ct_state = ct_state
         z = (
                 keras.ops.matmul(sequences, self.input_kernel)
                 + keras.ops.matmul(flat_ct_state, self.recurrent_kernel)
