@@ -1,0 +1,326 @@
+---
+title: "Our great idea"
+abstract: "A brief summary of our ideas."
+keywords: "Statistics, Regression, Forecasting"
+
+course: Statistics (-)
+supervisor: -
+city: -
+
+# List of Authors
+author:
+- familyname: Curie
+  othernames: Marie
+  address: "MatNr: -"
+  qualifications: "Business Administration (BA, 2. Semester)"
+  email: curie.marie@fh-swf.de
+  correspondingauthor: true
+- familyname: Curie
+  othernames: Pierre
+  address: "MatNr: 87654321"
+  qualifications: "Electrical Engineering (MA, 1. Semester)"
+  email: curie.pierre@fh-swf.de
+
+# Language Options
+german: false # German Dummy Text
+lang: en-gb   # Text Language: en-gb, en-us, de-de
+
+# Indexes
+toc: true     # Table of Contents
+lot: false    # List of Tables
+lof: false    # List of Figures
+
+# Output Options
+bibliography: references.bib
+biblio-style: authoryear-comp
+blind: false
+cover: true
+checklist: true
+output:
+  fhswf::seminarpaper:
+    fig_caption: yes
+    fig_height: 5
+    fig_width: 8
+    keep_tex: no
+    number_sections: yes
+    citation_package: biblatex
+knit: fhswf::render_seminarpaper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, cache=FALSE, messages=FALSE, warning=FALSE, 
+                      attr.source='.numberLines', singlespacing = TRUE)
+fhswf::fhswf_hooks()
+
+# Load Packages
+library(fhswf)
+library(ggplot2)
+library(tsibbledata)
+library(dplyr)
+library(tsibble)
+library(fable)
+library(fabletools)
+library(feasts)
+library(distributional)
+library(lubridate)
+library(broom)
+library(readr)
+library(tidyr)
+library(datasets)
+library(forecast)
+```
+
+URL-collection
+
+```
+https://www.pjm.com/library/~/media/about-pjm/pjm-zones.ashx
+```
+
+# American Electric Power
+
+```{r, message=FALSE, warning=FALSE}
+
+# For the company https://en.wikipedia.org/wiki/American_Electric_Power
+# estimated energy consumption in Megawatts (MW)
+
+AEP_hourly <- read.csv("data\\AEP_hourly.csv")
+AEP_hourly$Datetime <- as.POSIXct(AEP_hourly$Datetime, 
+                                  format = "%Y-%m-%d %H:%M:%S")
+AEP_hourly <- AEP_hourly |>
+  drop_na(Datetime) |>
+  distinct(Datetime, .keep_all = TRUE)
+
+AEP_hourly <- as_tsibble(AEP_hourly, index = Datetime) |> fill_gaps()
+
+AEP_hourly |>
+  gg_tsdisplay(AEP_MW, plot_type="partial", lag=36)
+
+```
+
+# Commonwealth Edison
+
+```{r, message=FALSE, warning=FALSE}
+
+# For the company https://en.wikipedia.org/wiki/Commonwealth_Edison
+# estimated energy consumption in Megawatts (MW)
+
+COMED_hourly <- read.csv("data\\COMED_hourly.csv")
+COMED_hourly$Datetime <- as.POSIXct(COMED_hourly$Datetime, 
+                                  format = "%Y-%m-%d %H:%M:%S")
+COMED_hourly <- COMED_hourly |>
+  drop_na(Datetime) |>
+  distinct(Datetime, .keep_all = TRUE)
+
+COMED_hourly <- as_tsibble(COMED_hourly, index = Datetime) |> fill_gaps()
+
+COMED_hourly |>
+  gg_tsdisplay(COMED_MW, plot_type="partial", lag=36)
+
+```
+
+# DLP Inc.
+
+```{r, message=FALSE, warning=FALSE}
+
+# For the company https://en.wikipedia.org/wiki/DPL_Inc.
+# estimated energy consumption in Megawatts (MW)
+
+DAYTON_hourly <- read.csv("data\\DAYTON_hourly.csv")
+DAYTON_hourly$Datetime <- as.POSIXct(DAYTON_hourly$Datetime, 
+                                  format = "%Y-%m-%d %H:%M:%S")
+DAYTON_hourly <- DAYTON_hourly |>
+  drop_na(Datetime) |>
+  distinct(Datetime, .keep_all = TRUE)
+
+DAYTON_hourly <- as_tsibble(DAYTON_hourly, index = Datetime) |> fill_gaps()
+
+DAYTON_hourly |>
+  gg_tsdisplay(DAYTON_MW, plot_type="partial", lag=36)
+
+```
+
+# Duke Energy
+
+```{r, message=FALSE, warning=FALSE}
+
+# For the company https://en.wikipedia.org/wiki/Duke_Energy
+# estimated energy consumption in Megawatts (MW)
+
+DEOK_hourly <- read.csv("data\\DEOK_hourly.csv")
+DEOK_hourly$Datetime <- as.POSIXct(DEOK_hourly$Datetime, 
+                                  format = "%Y-%m-%d %H:%M:%S")
+DEOK_hourly <- DEOK_hourly |>
+  drop_na(Datetime) |>
+  distinct(Datetime, .keep_all = TRUE)
+
+DEOK_hourly <- as_tsibble(DEOK_hourly, index = Datetime) |> fill_gaps()
+
+DEOK_hourly |>
+  gg_tsdisplay(DEOK_MW, plot_type="partial", lag=36)
+
+```
+
+# Dominion Enery
+
+```{r, message=FALSE, warning=FALSE}
+
+# For the company https://en.wikipedia.org/wiki/Dominion_Energy
+# estimated energy consumption in Megawatts (MW)
+
+DOM_hourly <- read.csv("data\\DOM_hourly.csv")
+DOM_hourly$Datetime <- as.POSIXct(DOM_hourly$Datetime, 
+                                  format = "%Y-%m-%d %H:%M:%S")
+DOM_hourly <- DOM_hourly |>
+  drop_na(Datetime) |>
+  distinct(Datetime, .keep_all = TRUE)
+
+DOM_hourly <- as_tsibble(DOM_hourly, index = Datetime) |> fill_gaps()
+
+DOM_hourly |>
+  gg_tsdisplay(DOM_MW, plot_type="partial", lag=36)
+
+```
+
+# Diquesne Lightr Company
+
+```{r, message=FALSE, warning=FALSE}
+
+# For the company https://en.wikipedia.org/wiki/Duquesne_Light_Company
+# estimated energy consumption in Megawatts (MW)
+
+DUQ_hourly <- read.csv("data\\DUQ_hourly.csv")
+DUQ_hourly$Datetime <- as.POSIXct(DUQ_hourly$Datetime, 
+                                  format = "%Y-%m-%d %H:%M:%S")
+DUQ_hourly <- DUQ_hourly |>
+  drop_na(Datetime) |>
+  distinct(Datetime, .keep_all = TRUE)
+
+DUQ_hourly <- as_tsibble(DUQ_hourly, index = Datetime) |> fill_gaps()
+
+DUQ_hourly |>
+  gg_tsdisplay(DUQ_MW, plot_type="partial", lag=36)
+
+```
+
+# East Kentucky Power Cooperative
+
+```{r, message=FALSE, warning=FALSE}
+
+# For the company https://www.ekpc.coop/
+# estimated energy consumption in Megawatts (MW)
+
+EKPC_hourly <- read.csv("data\\EKPC_hourly.csv")
+EKPC_hourly$Datetime <- as.POSIXct(EKPC_hourly$Datetime, 
+                                  format = "%Y-%m-%d %H:%M:%S")
+EKPC_hourly <- EKPC_hourly |>
+  drop_na(Datetime) |>
+  distinct(Datetime, .keep_all = TRUE)
+
+EKPC_hourly <- as_tsibble(EKPC_hourly, index = Datetime) |> fill_gaps()
+
+EKPC_hourly |>
+  gg_tsdisplay(EKPC_MW, plot_type="partial", lag=36)
+
+```
+
+# First Energy
+
+```{r, message=FALSE, warning=FALSE}
+
+# For the company https://en.wikipedia.org/wiki/FirstEnergy
+# estimated energy consumption in Megawatts (MW)
+
+FE_hourly <- read.csv("data\\FE_hourly.csv")
+FE_hourly$Datetime <- as.POSIXct(FE_hourly$Datetime, 
+                                  format = "%Y-%m-%d %H:%M:%S")
+FE_hourly <- FE_hourly |>
+  drop_na(Datetime) |>
+  distinct(Datetime, .keep_all = TRUE)
+
+FE_hourly <- as_tsibble(FE_hourly, index = Datetime) |> fill_gaps()
+
+FE_hourly |>
+  gg_tsdisplay(FE_MW, plot_type="partial", lag=36)
+
+```
+
+# Northern Illinois Hub
+
+```{r, message=FALSE, warning=FALSE}
+
+# For the company https://en.wikipedia.org/wiki/FirstEnergy
+# estimated energy consumption in Megawatts (MW)
+
+NI_hourly <- read.csv("data\\NI_hourly.csv")
+NI_hourly$Datetime <- as.POSIXct(NI_hourly$Datetime, 
+                                  format = "%Y-%m-%d %H:%M:%S")
+NI_hourly <- NI_hourly |>
+  drop_na(Datetime) |>
+  distinct(Datetime, .keep_all = TRUE)
+
+NI_hourly <- as_tsibble(NI_hourly, index = Datetime) |> fill_gaps()
+
+NI_hourly |>
+  gg_tsdisplay(NI_MW, plot_type="partial", lag=36)
+
+```
+
+# PJM East Region: 2001-2018 (PJME)
+
+```{r, message=FALSE, warning=FALSE}
+
+# estimated energy consumption in Megawatts (MW)
+
+PJME_hourly <- read.csv("data\\PJME_hourly.csv")
+PJME_hourly$Datetime <- as.POSIXct(PJME_hourly$Datetime, 
+                                  format = "%Y-%m-%d %H:%M:%S")
+PJME_hourly <- PJME_hourly |>
+  drop_na(Datetime) |>
+  distinct(Datetime, .keep_all = TRUE)
+
+PJME_hourly <- as_tsibble(PJME_hourly, index = Datetime) |> fill_gaps()
+
+PJME_hourly |>
+  gg_tsdisplay(PJME_MW, plot_type="partial", lag=36)
+
+```
+
+# PJM West Region: 2001-2018 (PJMW)
+
+```{r, message=FALSE, warning=FALSE}
+
+# estimated energy consumption in Megawatts (MW)
+
+PJMW_hourly <- read.csv("data\\PJMW_hourly.csv")
+PJMW_hourly$Datetime <- as.POSIXct(PJMW_hourly$Datetime, 
+                                  format = "%Y-%m-%d %H:%M:%S")
+PJMW_hourly <- PJMW_hourly |>
+  drop_na(Datetime) |>
+  distinct(Datetime, .keep_all = TRUE)
+
+PJMW_hourly <- as_tsibble(PJMW_hourly, index = Datetime) |> fill_gaps()
+
+PJMW_hourly |>
+  gg_tsdisplay(PJMW_MW, plot_type="partial", lag=36)
+
+```
+
+# PJM Load Combined: 1998-2001 (PJM_Load)
+
+```{r, message=FALSE, warning=FALSE}
+
+# estimated energy consumption in Megawatts (MW)
+
+PJM_Load_hourly <- read.csv("data\\PJM_Load_hourly.csv")
+PJM_Load_hourly$Datetime <- as.POSIXct(PJM_Load_hourly$Datetime, 
+                                  format = "%Y-%m-%d %H:%M:%S")
+PJM_Load_hourly <- PJM_Load_hourly |>
+  drop_na(Datetime) |>
+  distinct(Datetime, .keep_all = TRUE)
+
+PJM_Load_hourly <- as_tsibble(PJM_Load_hourly, index = Datetime) |> fill_gaps()
+
+PJM_Load_hourly |>
+  gg_tsdisplay(PJM_Load_MW, plot_type="partial", lag=36)
+
+```
