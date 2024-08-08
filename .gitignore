@@ -6,6 +6,16 @@ __pycache__/
 # C extensions
 *.so
 
+# Ignore Data .csv
+*.csv
+
+# Ignore paruqet
+*.paruqet
+
+# Ignore PyCharm Idea
+.idea/
+
+
 # Distribution / packaging
 .Python
 build/
