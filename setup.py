@@ -17,7 +17,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="ncps",
-    version="1.0.0",
+    version="1.0.1",
     packages=find_packages(),  # include/exclude arguments take * as wildcard, . for any sub-package names
     description="Neural Circuit Policies for PyTorch, Tensorflow, and Keras V3",
     url="https://github.com/mlech26l/ncps",
