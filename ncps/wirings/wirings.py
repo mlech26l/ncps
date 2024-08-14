@@ -111,19 +111,21 @@ class Wiring:
 
     def get_config(self):
         return {
-            "adjacency_matrix": self.adjacency_matrix,
-            "sensory_adjacency_matrix": self.sensory_adjacency_matrix,
+            "units": self.units,
+            "adjacency_matrix": self.adjacency_matrix.tolist() if self.adjacency_matrix is not None else None,
+            "sensory_adjacency_matrix": self.sensory_adjacency_matrix.tolist() if self.sensory_adjacency_matrix is not None else None,
             "input_dim": self.input_dim,
             "output_dim": self.output_dim,
-            "units": self.units,
         }
 
     @classmethod
     def from_config(cls, config):
         # There might be a cleaner solution but it will work
         wiring = Wiring(config["units"])
-        wiring.adjacency_matrix = config["adjacency_matrix"]
-        wiring.sensory_adjacency_matrix = config["sensory_adjacency_matrix"]
+        if config["adjacency_matrix"] is not None:
+            wiring.adjacency_matrix = np.array(config["adjacency_matrix"])
+        if config["sensory_adjacency_matrix"] is not None:
+            wiring.sensory_adjacency_matrix = np.array(config["sensory_adjacency_matrix"])
         wiring.input_dim = config["input_dim"]
         wiring.output_dim = config["output_dim"]
 
@@ -300,6 +302,7 @@ class FullyConnected(Wiring):
         self.self_connections = self_connections
         self.set_output_dim(output_dim)
         self._rng = np.random.default_rng(erev_init_seed)
+        self._erev_init_seed = erev_init_seed
         for src in range(self.units):
             for dest in range(self.units):
                 if src == dest and not self_connections:
@@ -313,6 +316,18 @@ class FullyConnected(Wiring):
             for dest in range(self.units):
                 polarity = self._rng.choice([-1, 1, 1])
                 self.add_sensory_synapse(src, dest, polarity)
+
+    def get_config(self):
+        return {
+            "units": self.units,
+            "output_dim": self.output_dim,
+            "erev_init_seed": self._erev_init_seed,
+            "self_connections": self.self_connections
+        }
+
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
 
 
 class Random(Wiring):
@@ -330,6 +345,7 @@ class Random(Wiring):
                 )
             )
         self._rng = np.random.default_rng(random_seed)
+        self._random_seed = random_seed
 
         number_of_synapses = int(np.round(units * units * (1 - sparsity_level)))
         all_synapses = []
@@ -362,6 +378,18 @@ class Random(Wiring):
             self.add_sensory_synapse(src, dest, polarity)
             polarity = self._rng.choice([-1, 1, 1])
             self.add_sensory_synapse(src, dest, polarity)
+
+    def get_config(self):
+        return {
+            "units": self.units,
+            "output_dim": self.output_dim,
+            "sparsity_level": self.sparsity_level,
+            "random_seed": self._random_seed,
+        }
+
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
 
 
 class NCP(Wiring):
@@ -555,6 +583,22 @@ class NCP(Wiring):
         self._build_recurrent_command_layer()
         self._build_command__to_motor_layer()
 
+    def get_config(self):
+        return {
+            "inter_neurons": self._inter_neurons,
+            "command_neurons": self._command_neurons,
+            "motor_neurons": self._motor_neurons,
+            "sensory_fanout": self._sensory_fanout,
+            "inter_fanout": self._inter_fanout,
+            "recurrent_command_synapses": self._recurrent_command_synapses,
+            "motor_fanin": self._motor_fanin,
+            "seed": self._rng.seed(),
+        }
+
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
+
 
 class AutoNCP(NCP):
     def __init__(
@@ -571,6 +615,9 @@ class AutoNCP(NCP):
         :param sparsity_level: A hyperparameter between 0.0 (very dense) and 0.9 (very sparse) NCP.
         :param seed: Random seed for generating the wiring
         """
+        self._output_size = output_size
+        self._sparsity_level = sparsity_level
+        self._seed = seed
         if output_size >= units - 2:
             raise ValueError(
                 f"Output size must be less than the number of units-2 (given {units} units, {output_size} output size)"
@@ -598,3 +645,15 @@ class AutoNCP(NCP):
             motor_fanin,
             seed=seed,
         )
+
+    def get_config(self):
+        return {
+            "units": self.units,
+            "output_size": self._output_size,
+            "sparsity_level": self._sparsity_level,
+            "seed": self._seed,
+        }
+
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)

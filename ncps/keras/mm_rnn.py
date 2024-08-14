@@ -29,6 +29,13 @@ class MixedMemoryRNN(keras.layers.Layer):
         return [self.flat_size, self.rnn_cell.state_size]
 
     @property
+    def output_size(self):
+        if hasattr(self.rnn_cell, "output_size"):
+            return self.rnn_cell.output_size
+        else:
+            return self.rnn_cell.state_size
+
+    @property
     def flat_size(self):
         if isinstance(self.rnn_cell.state_size, int):
             return self.rnn_cell.state_size
@@ -61,7 +68,10 @@ class MixedMemoryRNN(keras.layers.Layer):
 
     def call(self, sequences, initial_state=None, mask=None, training=False, **kwargs):
         memory_state, ct_state = initial_state
-        flat_ct_state = keras.ops.concatenate([ct_state], axis=-1)
+        if isinstance(ct_state, list):
+            flat_ct_state = keras.ops.concatenate(ct_state, axis=-1)
+        else:
+            flat_ct_state = ct_state
         z = (
                 keras.ops.matmul(sequences, self.input_kernel)
                 + keras.ops.matmul(flat_ct_state, self.recurrent_kernel)

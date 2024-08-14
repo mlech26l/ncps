@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ncps import wirings
-import numpy as np
 import keras
+import numpy as np
 
 
 @keras.utils.register_keras_serializable(package="ncps", name="LTCCell")
@@ -96,7 +95,7 @@ class LTCCell(keras.layers.Layer):
                     )
                 self._init_ranges[k] = v
 
-        self._wiring = wiring
+        self.wiring = wiring
         self._input_mapping = input_mapping
         self._output_mapping = output_mapping
         self._ode_unfolds = ode_unfolds
@@ -104,15 +103,15 @@ class LTCCell(keras.layers.Layer):
 
     @property
     def state_size(self):
-        return self._wiring.units
+        return self.wiring.units
 
     @property
     def sensory_size(self):
-        return self._wiring.input_dim
+        return self.wiring.input_dim
 
     @property
     def motor_size(self):
-        return self._wiring.output_dim
+        return self.wiring.output_dim
 
     @property
     def output_size(self):
@@ -134,7 +133,7 @@ class LTCCell(keras.layers.Layer):
         else:
             input_dim = input_shape[-1]
 
-        self._wiring.build(input_dim)
+        self.wiring.build(input_dim)
 
         self._params = {}
         self._params["gleak"] = self.add_weight(
@@ -180,7 +179,7 @@ class LTCCell(keras.layers.Layer):
             name="erev",
             shape=(self.state_size, self.state_size),
             dtype="float32",
-            initializer=self._wiring.erev_initializer,
+            initializer=self.wiring.erev_initializer,
         )
 
         self._params["sensory_sigma"] = self.add_weight(
@@ -206,14 +205,14 @@ class LTCCell(keras.layers.Layer):
             name="sensory_erev",
             shape=(self.sensory_size, self.state_size),
             dtype="float32",
-            initializer=self._wiring.sensory_erev_initializer,
+            initializer=self.wiring.sensory_erev_initializer,
         )
 
         self._params["sparsity_mask"] = keras.ops.convert_to_tensor(
-            np.abs(self._wiring.adjacency_matrix), dtype="float32"
+            np.abs(self.wiring.adjacency_matrix), dtype="float32"
         )
         self._params["sensory_sparsity_mask"] = keras.ops.convert_to_tensor(
-            np.abs(self._wiring.sensory_adjacency_matrix), dtype="float32"
+            np.abs(self.wiring.sensory_adjacency_matrix), dtype="float32"
         )
 
         if self._input_mapping in ["affine", "linear"]:
@@ -333,14 +332,14 @@ class LTCCell(keras.layers.Layer):
         return outputs, [next_state]
 
     def get_config(self):
-        seralized = self._wiring.get_config()
-        seralized["input_mapping"] = self._input_mapping
-        seralized["output_mapping"] = self._output_mapping
-        seralized["ode_unfolds"] = self._ode_unfolds
-        seralized["epsilon"] = self._epsilon
-        return seralized
+        config = super(LTCCell, self).get_config()
+        config["wiring"] = self.wiring.get_config()
+        config["input_mapping"] = self._input_mapping
+        config["output_mapping"] = self._output_mapping
+        config["ode_unfolds"] = self._ode_unfolds
+        config["epsilon"] = self._epsilon
+        return config
 
     @classmethod
     def from_config(cls, config):
-        wiring = wirings.Wiring.from_config(config)
-        return cls(wiring=wiring, **config)
+        return cls(**config)

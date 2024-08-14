@@ -23,21 +23,23 @@ from . import CfCCell, MixedMemoryRNN, WiredCfCCell
 @keras.utils.register_keras_serializable(package="ncps", name="CfC")
 class CfC(keras.layers.RNN):
     def __init__(
-        self,
-        units: Union[int, ncps.wirings.Wiring],
-        mixed_memory: bool = False,
-        mode: str = "default",
-        activation: str = "lecun_tanh",
-        backbone_units: int = None,
-        backbone_layers: int = None,
-        backbone_dropout: float = None,
-        return_sequences: bool = False,
-        return_state: bool = False,
-        go_backwards: bool = False,
-        stateful: bool = False,
-        unroll: bool = False,
-        time_major: bool = False,
-        **kwargs,
+            self,
+            units: Union[int, ncps.wirings.Wiring],
+            mixed_memory: bool = False,
+            mode: str = "default",
+            activation: str = "lecun_tanh",
+            backbone_units: int = None,
+            backbone_layers: int = None,
+            backbone_dropout: float = None,
+            sparsity_mask: keras.layers.Layer = None,
+            fully_recurrent: bool = True,
+            return_sequences: bool = False,
+            return_state: bool = False,
+            go_backwards: bool = False,
+            stateful: bool = False,
+            unroll: bool = False,
+            zero_output_for_mask: bool = False,
+            **kwargs,
     ):
         """Applies a `Closed-form Continuous-time <https://arxiv.org/abs/2106.13898>`_ RNN to an input sequence.
 
@@ -56,12 +58,18 @@ class CfC(keras.layers.RNN):
         :param backbone_units: Number of hidden units in the backbone layer (default 128)
         :param backbone_layers: Number of backbone layers (default 1)
         :param backbone_dropout: Dropout rate in the backbone layers (default 0)
+        :param sparsity_mask:
+        :param fully_recurrent: Whether to apply a fully-connected sparsity_mask or use the adjacency_matrix. Evaluated only for WiredCfCCell. (default True)
         :param return_sequences: Whether to return the full sequence or just the last output (default False)
         :param return_state: Whether to return just the output of the RNN or a tuple (output, last_hidden_state) (default False)
         :param go_backwards: If True, the input sequence will be process from back to the front (default False)
         :param stateful: Whether to remember the last hidden state of the previous inference/training batch and use it as initial state for the next inference/training batch (default False)
         :param unroll: Whether to unroll the graph, i.e., may increase speed at the cost of more memory (default False)
-        :param time_major: Whether the time or batch dimension is the first (0-th) dimension (default False)
+        :param zero_output_for_mask: Whether the output should use zeros for the masked timesteps. (default False)
+                                     Note that this field is only used when `return_sequences` is `True` and `mask` is provided.
+                                     It can be useful if you want to reuse the raw output sequence of
+                                     the RNN without interference from the masked timesteps, e.g.,
+                                     merging bidirectional RNNs.
         :param kwargs:
         """
 
@@ -72,7 +80,7 @@ class CfC(keras.layers.RNN):
                 raise ValueError(f"Cannot use backbone_layers in wired mode")
             if backbone_dropout is not None:
                 raise ValueError(f"Cannot use backbone_dropout in wired mode")
-            cell = WiredCfCCell(units, mode=mode, activation=activation)
+            cell = WiredCfCCell(units, mode=mode, activation=activation, fully_recurrent=fully_recurrent)
         else:
             backbone_units = 128 if backbone_units is None else backbone_units
             backbone_layers = 1 if backbone_layers is None else backbone_layers
@@ -84,6 +92,7 @@ class CfC(keras.layers.RNN):
                 backbone_units=backbone_units,
                 backbone_layers=backbone_layers,
                 backbone_dropout=backbone_dropout,
+                sparsity_mask=sparsity_mask,
             )
         if mixed_memory:
             cell = MixedMemoryRNN(cell)
@@ -94,6 +103,29 @@ class CfC(keras.layers.RNN):
             go_backwards,
             stateful,
             unroll,
-            time_major,
+            zero_output_for_mask,
             **kwargs,
         )
+
+    def get_config(self):
+        is_mixed_memory = isinstance(self.cell, MixedMemoryRNN)
+        cell: CfCCell | WiredCfCCell = self.cell.rnn_cell if is_mixed_memory else self.cell
+        cell_config = cell.get_config()
+        config = super(CfC, self).get_config()
+        config["units"] = cell.wiring if isinstance(cell, WiredCfCCell) else cell.units
+        config["mixed_memory"] = is_mixed_memory
+        config["fully_recurrent"] = cell.fully_recurrent if isinstance(cell, WiredCfCCell) else True # If not WiredCfc it's ignored
+        return {**cell_config, **config}
+
+    @classmethod
+    def from_config(cls, config, custom_objects=None):
+        # The following parameters are recreated by the constructor
+        del config["cell"]
+        if "wiring" in config:
+            wiring_class = getattr(ncps.wirings, config["units"]["class_name"])
+            units = wiring_class.from_config(config["units"]["config"])
+            del config["wiring"]
+        else:
+            units = config["units"]
+        del config["units"]
+        return cls(units, **config)

@@ -12,13 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import keras
-import numpy as np
 
 
 # LeCun improved tanh activation
 # http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf
+@keras.utils.register_keras_serializable(package="", name="lecun_tanh")
 def lecun_tanh(x):
     return 1.7159 * keras.activations.tanh(0.666 * x)
+
+
+# Register the custom activation function
+from keras.src.activations import ALL_OBJECTS_DICT
+ALL_OBJECTS_DICT["lecun_tanh"] = lecun_tanh
 
 
 @keras.utils.register_keras_serializable(package="ncps", name="CfCCell")
@@ -26,13 +31,12 @@ class CfCCell(keras.layers.Layer):
     def __init__(
         self,
         units,
-        input_sparsity=None,
-        recurrent_sparsity=None,
         mode="default",
         activation="lecun_tanh",
         backbone_units=128,
         backbone_layers=1,
         backbone_dropout=0.1,
+        sparsity_mask=None,
         **kwargs,
     ):
         """A `Closed-form Continuous-time <https://arxiv.org/abs/2106.13898>`_ cell.
@@ -55,35 +59,18 @@ class CfCCell(keras.layers.Layer):
         """
         super().__init__(**kwargs)
         self.units = units
-        self.sparsity_mask = None
-        if input_sparsity is not None or recurrent_sparsity is not None:
+        self.sparsity_mask = sparsity_mask
+        if sparsity_mask is not None:
             # No backbone is allowed
             if backbone_units > 0:
-                raise ValueError(
-                    "If sparsity of a Cfc cell is set, then no backbone is allowed"
-                )
-            # Both need to be set
-            if input_sparsity is None or recurrent_sparsity is None:
-                raise ValueError(
-                    "If sparsity of a Cfc cell is set, then both input and recurrent sparsity needs to be defined"
-                )
-            self.sparsity_mask = keras.ops.convert_to_tensor(
-                np.concatenate([input_sparsity, recurrent_sparsity], axis=0),
-                dtype="float32",
-            )
+                raise ValueError("If sparsity of a CfC cell is set, then no backbone is allowed")
 
         allowed_modes = ["default", "pure", "no_gate"]
         if mode not in allowed_modes:
-            raise ValueError(
-                "Unknown mode '{}', valid options are {}".format(
-                    mode, str(allowed_modes)
-                )
-            )
+            raise ValueError(f"Unknown mode '{mode}', valid options are {str(allowed_modes)}")
         self.mode = mode
         self.backbone_fn = None
-        if activation == "lecun_tanh":
-            activation = lecun_tanh
-        self._activation = activation
+        self._activation = keras.activations.get(activation)
         self._backbone_units = backbone_units
         self._backbone_layers = backbone_layers
         self._backbone_dropout = backbone_dropout
@@ -94,40 +81,36 @@ class CfCCell(keras.layers.Layer):
         return self.units
 
     def build(self, input_shape):
-        if isinstance(input_shape[0], tuple) or isinstance(
-            input_shape[0], keras.KerasTensor
-        ):
+        if isinstance(input_shape[0], tuple) or isinstance(input_shape[0], keras.KerasTensor):
             # Nested tuple -> First item represent feature dimension
             input_dim = input_shape[0][-1]
         else:
             input_dim = input_shape[-1]
 
-        backbone_layers = []
-        for i in range(self._backbone_layers):
-            backbone_layers.append(
-                keras.layers.Dense(
-                    self._backbone_units, self._activation, name=f"backbone{i}"
-                )
-            )
-            backbone_layers.append(keras.layers.Dropout(self._backbone_dropout))
-            self.backbone_fn = keras.models.Sequential(backbone_layers)
+        if self._backbone_layers > 0:
+            backbone_layers = []
+            for i in range(self._backbone_layers):
+                backbone_layers.append(keras.layers.Dense(self._backbone_units, self._activation, name=f"backbone{i}"))
+                backbone_layers.append(keras.layers.Dropout(self._backbone_dropout))
 
-        cat_shape = int(
-            self.state_size + input_dim
-            if self._backbone_layers == 0
-            else self._backbone_units
+            self.backbone_fn = keras.models.Sequential(backbone_layers)
+            self.backbone_fn.build((None, self.state_size + input_dim))
+            cat_shape = int(self._backbone_units)
+        else:
+            cat_shape = int(self.state_size + input_dim)
+
+        self.ff1_kernel = self.add_weight(
+            shape=(cat_shape, self.state_size),
+            initializer="glorot_uniform",
+            name="ff1_weight",
         )
+        self.ff1_bias = self.add_weight(
+            shape=(self.state_size,),
+            initializer="zeros",
+            name="ff1_bias",
+        )
+
         if self.mode == "pure":
-            self.ff1_kernel = self.add_weight(
-                shape=(cat_shape, self.state_size),
-                initializer="glorot_uniform",
-                name="ff1_weight",
-            )
-            self.ff1_bias = self.add_weight(
-                shape=(self.state_size,),
-                initializer="zeros",
-                name="ff1_bias",
-            )
             self.w_tau = self.add_weight(
                 shape=(1, self.state_size),
                 initializer=keras.initializers.Zeros(),
@@ -139,16 +122,6 @@ class CfCCell(keras.layers.Layer):
                 name="A",
             )
         else:
-            self.ff1_kernel = self.add_weight(
-                shape=(cat_shape, self.state_size),
-                initializer="glorot_uniform",
-                name="ff1_weight",
-            )
-            self.ff1_bias = self.add_weight(
-                shape=(self.state_size,),
-                initializer="zeros",
-                name="ff1_bias",
-            )
             self.ff2_kernel = self.add_weight(
                 shape=(cat_shape, self.state_size),
                 initializer="glorot_uniform",
@@ -160,17 +133,13 @@ class CfCCell(keras.layers.Layer):
                 name="ff2_bias",
             )
 
-            #  = keras.layers.Dense(
-            #     , self._activation, name=f"{self.name}/ff1"
-            # )
-            # self.ff2 = keras.layers.Dense(
-            #     self.state_size, self._activation, name=f"{self.name}/ff2"
-            # )
-            # if self.sparsity_mask is not None:
-            #     self.ff1.build((None,))
-            #     self.ff2.build((None, self.sparsity_mask.shape[0]))
             self.time_a = keras.layers.Dense(self.state_size, name="time_a")
             self.time_b = keras.layers.Dense(self.state_size, name="time_b")
+            input_shape = (None, self.state_size + input_dim)
+            if self._backbone_layers > 0:
+                input_shape = self.backbone_fn.output_shape
+            self.time_a.build(input_shape)
+            self.time_b.build(input_shape)
         self.built = True
 
     def call(self, inputs, states, **kwargs):
@@ -213,3 +182,20 @@ class CfCCell(keras.layers.Layer):
                 new_hidden = ff1 * (1.0 - t_interp) + t_interp * ff2
 
         return new_hidden, [new_hidden]
+
+    def get_config(self):
+        config = {
+            "units": self.units,
+            "mode": self.mode,
+            "activation": self._activation,
+            "backbone_units": self._backbone_units,
+            "backbone_layers": self._backbone_layers,
+            "backbone_dropout": self._backbone_dropout,
+            "sparsity_mask": self.sparsity_mask,
+        }
+        base_config = super().get_config()
+        return {**base_config, **config}
+
+    @classmethod
+    def from_config(cls, config, custom_objects=None):
+        return cls(**config)
