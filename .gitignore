@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Raw data files
+*.csv
+
+# pylighting logs
+lightning_logs/
