@@ -37,7 +37,7 @@ def test_fc():
 
     model = tf.keras.models.Sequential(
         [
-            tf.keras.layers.InputLayer(input_shape=(None, 2)),
+            tf.keras.layers.InputLayer(shape=(None, 2)),
             tf.keras.layers.RNN(ltc_cell, return_sequences=True),
         ]
     )
@@ -60,7 +60,7 @@ def test_random():
 
     model = tf.keras.models.Sequential(
         [
-            tf.keras.layers.InputLayer(input_shape=(None, 2)),
+            tf.keras.layers.InputLayer(shape=(None, 2)),
             tf.keras.layers.RNN(ltc_cell, return_sequences=True),
         ]
     )
@@ -92,7 +92,7 @@ def test_ncp():
 
     model = tf.keras.models.Sequential(
         [
-            tf.keras.layers.InputLayer(input_shape=(None, 2)),
+            tf.keras.layers.InputLayer(shape=(None, 2)),
             tf.keras.layers.RNN(ltc_cell, return_sequences=True),
         ]
     )
@@ -114,7 +114,7 @@ def test_fit():
     rnn = CfC(8, return_sequences=True)
     model = tf.keras.models.Sequential(
         [
-            tf.keras.layers.InputLayer(input_shape=(None, 2)),
+            tf.keras.layers.InputLayer(shape=(None, 2)),
             rnn,
             tf.keras.layers.Dense(1),
         ]
@@ -137,7 +137,7 @@ def test_mm_rnn():
     rnn = CfC(8, return_sequences=True, mixed_memory=True)
     model = tf.keras.models.Sequential(
         [
-            tf.keras.layers.InputLayer(input_shape=(None, 2)),
+            tf.keras.layers.InputLayer(shape=(None, 2)),
             rnn,
             tf.keras.layers.Dense(1),
         ]
@@ -170,7 +170,7 @@ def test_ncp_rnn():
 
     model = tf.keras.models.Sequential(
         [
-            tf.keras.layers.InputLayer(input_shape=(None, 2)),
+            tf.keras.layers.InputLayer(shape=(None, 2)),
             ltc,
         ]
     )
@@ -193,7 +193,7 @@ def test_auto_ncp_rnn():
 
     model = tf.keras.models.Sequential(
         [
-            tf.keras.layers.InputLayer(input_shape=(None, 2)),
+            tf.keras.layers.InputLayer(shape=(None, 2)),
             ltc,
         ]
     )
@@ -218,7 +218,7 @@ def test_random_cfc():
 
     model = tf.keras.models.Sequential(
         [
-            tf.keras.layers.InputLayer(input_shape=(None, 2)),
+            tf.keras.layers.InputLayer(shape=(None, 2)),
             cfc,
         ]
     )
@@ -250,7 +250,7 @@ def test_ncp_cfc_rnn():
 
     model = tf.keras.models.Sequential(
         [
-            tf.keras.layers.InputLayer(input_shape=(None, 2)),
+            tf.keras.layers.InputLayer(shape=(None, 2)),
             ltc,
         ]
     )
@@ -273,7 +273,7 @@ def test_auto_ncp_cfc_rnn():
 
     model = tf.keras.models.Sequential(
         [
-            tf.keras.layers.InputLayer(input_shape=(None, 2)),
+            tf.keras.layers.InputLayer(shape=(None, 2)),
             ltc,
         ]
     )
@@ -295,7 +295,7 @@ def test_ltc_rnn():
 
     model = tf.keras.models.Sequential(
         [
-            tf.keras.layers.InputLayer(input_shape=(None, 2)),
+            tf.keras.layers.InputLayer(shape=(None, 2)),
             ltc,
         ]
     )
