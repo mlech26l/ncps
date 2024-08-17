@@ -19,7 +19,7 @@ from typing import Optional, Union
 
 
 @tf.keras.utils.register_keras_serializable(package="ncps", name="MixedMemoryRNN")
-class MixedMemoryRNN(tf.keras.layers.AbstractRNNCell):
+class MixedMemoryRNN(tf.keras.layers.Layer):
     def __init__(self, rnn_cell, forget_gate_bias=1.0, **kwargs):
         super().__init__(**kwargs)
 
@@ -56,7 +56,7 @@ class MixedMemoryRNN(tf.keras.layers.AbstractRNNCell):
             name="recurrent_kernel",
         )
         self.bias = self.add_weight(
-            shape=(4 * self.flat_size),
+            shape=(4 * self.flat_size,),
             initializer=tf.keras.initializers.Zeros(),
             name="bias",
         )

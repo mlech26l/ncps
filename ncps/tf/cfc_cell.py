@@ -25,7 +25,7 @@ def lecun_tanh(x):
 
 
 @tf.keras.utils.register_keras_serializable(package="ncps", name="CfCCell")
-class CfCCell(tf.keras.layers.AbstractRNNCell):
+class CfCCell(tf.keras.layers.Layer):
     def __init__(
         self,
         units,
@@ -185,7 +185,10 @@ class CfCCell(tf.keras.layers.AbstractRNNCell):
             # Regularly sampled mode (elapsed time = 1 second)
             t = 1.0
         x = tf.keras.layers.Concatenate()([inputs, states[0]])
-        x = self.backbone_fn(x)
+        try:
+            x = self.backbone_fn(x)
+        except Exception as err:
+            print(err)
         if self.sparsity_mask is not None:
             ff1_kernel = self.ff1_kernel * self.sparsity_mask
             ff1 = tf.matmul(x, ff1_kernel) + self.ff1_bias

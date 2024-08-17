@@ -32,7 +32,7 @@ def test_fc():
 
     model = keras.models.Sequential(
         [
-            keras.layers.InputLayer(input_shape=(None, 2)),
+            keras.layers.InputLayer(shape=(None, 2)),
             keras.layers.RNN(ltc_cell, return_sequences=True),
         ]
     )
@@ -60,7 +60,7 @@ def test_random():
 
     model = keras.models.Sequential(
         [
-            keras.layers.InputLayer(input_shape=(None, 2)),
+            keras.layers.InputLayer(shape=(None, 2)),
             keras.layers.RNN(ltc_cell, return_sequences=True),
         ]
     )
@@ -84,7 +84,7 @@ def test_ncp():
 
     model = keras.models.Sequential(
         [
-            keras.layers.InputLayer(input_shape=(None, 2)),
+            keras.layers.InputLayer(shape=(None, 2)),
             keras.layers.RNN(ltc_cell, return_sequences=True),
         ]
     )
@@ -98,7 +98,7 @@ def test_fit():
     rnn = CfC(8, return_sequences=True)
     model = keras.models.Sequential(
         [
-            keras.layers.InputLayer(input_shape=(None, 2)),
+            keras.layers.InputLayer(shape=(None, 2)),
             rnn,
             keras.layers.Dense(1),
         ]
@@ -113,7 +113,7 @@ def test_mm_rnn():
     rnn = CfC(8, return_sequences=True, mixed_memory=True)
     model = keras.models.Sequential(
         [
-            keras.layers.InputLayer(input_shape=(None, 2)),
+            keras.layers.InputLayer(shape=(None, 2)),
             rnn,
             keras.layers.Dense(1),
         ]
@@ -138,7 +138,7 @@ def test_ncp_rnn():
 
     model = keras.models.Sequential(
         [
-            keras.layers.InputLayer(input_shape=(None, 2)),
+            keras.layers.InputLayer(shape=(None, 2)),
             ltc,
         ]
     )
@@ -153,7 +153,7 @@ def test_auto_ncp_rnn():
 
     model = keras.models.Sequential(
         [
-            keras.layers.InputLayer(input_shape=(None, 2)),
+            keras.layers.InputLayer(shape=(None, 2)),
             ltc,
         ]
     )
@@ -170,7 +170,7 @@ def test_random_cfc():
 
     model = keras.models.Sequential(
         [
-            keras.layers.InputLayer(input_shape=(None, 2)),
+            keras.layers.InputLayer(shape=(None, 2)),
             cfc,
         ]
     )
@@ -194,7 +194,7 @@ def test_ncp_cfc_rnn():
 
     model = keras.models.Sequential(
         [
-            keras.layers.InputLayer(input_shape=(None, 2)),
+            keras.layers.InputLayer(shape=(None, 2)),
             ltc,
         ]
     )
@@ -209,7 +209,7 @@ def test_auto_ncp_cfc_rnn():
 
     model = keras.models.Sequential(
         [
-            keras.layers.InputLayer(input_shape=(None, 2)),
+            keras.layers.InputLayer(shape=(None, 2)),
             ltc,
         ]
     )
@@ -223,7 +223,7 @@ def test_ltc_rnn():
 
     model = keras.models.Sequential(
         [
-            keras.layers.InputLayer(input_shape=(None, 2)),
+            keras.layers.InputLayer(shape=(None, 2)),
             ltc,
         ]
     )
