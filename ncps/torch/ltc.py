@@ -33,6 +33,7 @@ class LTC(nn.Module):
         ode_unfolds=6,
         epsilon=1e-8,
         implicit_param_constraints=True,
+        use_swish_activation=False,
     ):
         """Applies a `Liquid time-constant (LTC) <https://ojs.aaai.org/index.php/AAAI/article/view/16936>`_ RNN to an input sequence.
 
@@ -71,6 +72,7 @@ class LTC(nn.Module):
         :param ode_unfolds:
         :param epsilon:
         :param implicit_param_constraints:
+        :param use_swish_activation:
         """
 
         super(LTC, self).__init__()
@@ -91,6 +93,7 @@ class LTC(nn.Module):
             ode_unfolds=ode_unfolds,
             epsilon=epsilon,
             implicit_param_constraints=implicit_param_constraints,
+            use_swish_activation=use_swish_activation,
         )
         self._wiring = wiring
         self.use_mixed = mixed_memory

@@ -28,6 +28,7 @@ class LTCCell(nn.Module):
         ode_unfolds=6,
         epsilon=1e-8,
         implicit_param_constraints=False,
+        use_swish_activation=False,
     ):
         """A `Liquid time-constant (LTC) <https://ojs.aaai.org/index.php/AAAI/article/view/16936>`_ cell.
 
@@ -42,6 +43,7 @@ class LTCCell(nn.Module):
         :param ode_unfolds:
         :param epsilon:
         :param implicit_param_constraints:
+        :param use_swish_activation:
         """
         super(LTCCell, self).__init__()
         if in_features is not None:
@@ -54,6 +56,7 @@ class LTCCell(nn.Module):
             nn.Softplus() if implicit_param_constraints else nn.Identity()
         )
         self._implicit_param_constraints = implicit_param_constraints
+        self._use_swish_activation = use_swish_activation
         self._init_ranges = {
             "gleak": (0.001, 1.0),
             "vleak": (-0.2, 0.2),
@@ -64,6 +67,7 @@ class LTCCell(nn.Module):
             "sensory_w": (0.001, 1.0),
             "sensory_sigma": (3, 8),
             "sensory_mu": (0.3, 0.8),
+            "swish_beta": (0.5, 1.5) if self._use_swish_activation else ""
         }
         self._wiring = wiring
         self._input_mapping = input_mapping
@@ -163,14 +167,22 @@ class LTCCell(nn.Module):
 
         self._params["sparsity_mask"] = self.add_weight(
             "sparsity_mask",
-            torch.Tensor(np.abs(self._wiring.adjacency_matrix)),
+            init_value=torch.Tensor(np.abs(self._wiring.adjacency_matrix)),
             requires_grad=False,
         )
         self._params["sensory_sparsity_mask"] = self.add_weight(
             "sensory_sparsity_mask",
-            torch.Tensor(np.abs(self._wiring.sensory_adjacency_matrix)),
+            init_value=torch.Tensor(np.abs(self._wiring.sensory_adjacency_matrix)),
             requires_grad=False,
         )
+        if self._use_swish_activation:
+            self._params["swish_beta"] = self.add_weight(
+                "swish_beta",
+                init_value=torch.tensor(1.0),
+                # init_value=self._get_init_value(
+                #     (self.sensory_size, self.state_size), "swish_beta"
+                # ),
+            )
 
         if self._input_mapping in ["affine", "linear"]:
             self._params["input_w"] = self.add_weight(
@@ -194,10 +206,13 @@ class LTCCell(nn.Module):
                 init_value=torch.zeros((self.motor_size,)),
             )
 
-    def _sigmoid(self, v_pre, mu, sigma):
+    def _sigmoid(self, v_pre, mu, sigma, beta):
         v_pre = torch.unsqueeze(v_pre, -1)  # For broadcasting
         mues = v_pre - mu
         x = sigma * mues
+        if self._use_swish_activation:
+            print(x.shape, beta.shape, mu.shape)
+            return x * torch.sigmoid(beta * x)
         return torch.sigmoid(x)
 
     def _ode_solver(self, inputs, state, elapsed_time):
@@ -207,7 +222,9 @@ class LTCCell(nn.Module):
         sensory_w_activation = self.make_positive_fn(
             self._params["sensory_w"]
         ) * self._sigmoid(
-            inputs, self._params["sensory_mu"], self._params["sensory_sigma"]
+            inputs, self._params["sensory_mu"],
+            self._params["sensory_sigma"], self._params["swish_beta"] if self._use_swish_activation else None
+
         )
         sensory_w_activation = (
             sensory_w_activation * self._params["sensory_sparsity_mask"]
@@ -228,7 +245,8 @@ class LTCCell(nn.Module):
         w_param = self.make_positive_fn(self._params["w"])
         for t in range(self._ode_unfolds):
             w_activation = w_param * self._sigmoid(
-                v_pre, self._params["mu"], self._params["sigma"]
+                v_pre, self._params["mu"],
+                self._params["sigma"], self._params["swish_beta"] if self._use_swish_activation else None
             )
 
             w_activation = w_activation * self._params["sparsity_mask"]
