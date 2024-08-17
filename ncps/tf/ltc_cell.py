@@ -19,7 +19,7 @@ from typing import Optional, Union
 
 
 @tf.keras.utils.register_keras_serializable(package="ncps", name="LTCCell")
-class LTCCell(tf.keras.layers.AbstractRNNCell):
+class LTCCell(tf.keras.layers.Layer):
     def __init__(
         self,
         wiring,
