@@ -211,7 +211,6 @@ class LTCCell(nn.Module):
         mues = v_pre - mu
         x = sigma * mues
         if self._use_swish_activation:
-            print(x.shape, beta.shape, mu.shape)
             return x * torch.sigmoid(beta * x)
         return torch.sigmoid(x)
 
