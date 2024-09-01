@@ -624,7 +624,7 @@ class AutoNCP(NCP):
             )
         if sparsity_level < 0.1 or sparsity_level > 1.0:
             raise ValueError(
-                f"Sparsity level must be between 0.0 and 0.9 (given {sparsity_level})"
+                f"Sparsity level must be between 0.1 and 0.9 (given {sparsity_level})"
             )
         density_level = 1.0 - sparsity_level
         inter_and_command_neurons = units - output_size
