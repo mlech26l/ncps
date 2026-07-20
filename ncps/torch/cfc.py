@@ -49,7 +49,7 @@ class CfC(nn.Module):
 
         :param input_size: Number of input features
         :param units: Number of hidden units
-        :param proj_size: If not None, the output of the RNN will be projected to a tensor with dimension proj_size (i.e., an implict linear output layer)
+        :param proj_size: If not None, the output of the RNN will be projected to a tensor with dimension proj_size (i.e., an implicit linear output layer)
         :param return_sequences: Whether to return the full sequence or just the last output
         :param batch_first: Whether the batch or time dimension is the first (0-th) dimension
         :param mixed_memory: Whether to augment the RNN by a `memory-cell <https://arxiv.org/abs/2006.04418>`_ to help learn long-term dependencies in the data
