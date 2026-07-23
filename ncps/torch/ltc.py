@@ -175,10 +175,10 @@ class LTC(nn.Module):
         for t in range(seq_len):
             if self.batch_first:
                 inputs = input[:, t]
-                ts = 1.0 if timespans is None else timespans[:, t].squeeze()
+                ts = 1.0 if timespans is None else timespans[:, t].reshape(batch_size, 1)
             else:
                 inputs = input[t]
-                ts = 1.0 if timespans is None else timespans[t].squeeze()
+                ts = 1.0 if timespans is None else timespans[t].reshape(batch_size, 1)
 
             if self.use_mixed:
                 h_state, c_state = self.lstm(inputs, (h_state, c_state))

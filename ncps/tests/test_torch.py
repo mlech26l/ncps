@@ -174,6 +174,69 @@ def test_ncp_cfc_2():
     # ):
 
 
+def test_cfc_batched_timespans():
+    # Irregularly sampled sequences: per-sequence elapsed times with batch > 1
+    input_size = 8
+    rnn = CfC(input_size, 16)
+    input = torch.randn(4, 6, input_size)
+    ts = torch.rand(4, 6)
+    output, hx = rnn(input, timespans=ts)
+    assert output.size() == (4, 6, 16)
+    assert hx.size() == (4, 16)
+    # (B, T, 1) timespans must behave identically to (B, T)
+    output3, _ = rnn(input, timespans=ts.unsqueeze(-1))
+    assert torch.allclose(output, output3)
+    # elapsed times must actually modulate the dynamics
+    output_const, _ = rnn(input)
+    assert not torch.allclose(output, output_const)
+
+
+def test_ltc_batched_timespans():
+    input_size = 8
+    rnn = LTC(input_size, 16)
+    input = torch.randn(4, 6, input_size)
+    ts = torch.rand(4, 6)
+    output, hx = rnn(input, timespans=ts)
+    assert output.size() == (4, 6, 16)
+    assert hx.size() == (4, 16)
+    output3, _ = rnn(input, timespans=ts.unsqueeze(-1))
+    assert torch.allclose(output, output3)
+    output_const, _ = rnn(input)
+    assert not torch.allclose(output, output_const)
+
+
+def test_batched_timespans_seq_first():
+    # batch_first=False exercises the second slicing branch (timespans[t])
+    input_size = 8
+    for cls in (CfC, LTC):
+        rnn_bf = cls(input_size, 16, batch_first=True)
+        rnn_sf = cls(input_size, 16, batch_first=False)
+        rnn_sf.load_state_dict(rnn_bf.state_dict())
+        input = torch.randn(4, 6, input_size)   # (B, T, C)
+        ts = torch.rand(4, 6)                   # (B, T)
+        out_bf, hx_bf = rnn_bf(input, timespans=ts)
+        out_sf, hx_sf = rnn_sf(input.transpose(0, 1), timespans=ts.transpose(0, 1))
+        assert out_sf.size() == (6, 4, 16)
+        assert hx_sf.size() == (4, 16)
+        # same weights, same data: seq-first must match batch-first exactly
+        assert torch.allclose(out_sf.transpose(0, 1), out_bf, atol=1e-6)
+        assert torch.allclose(hx_sf, hx_bf, atol=1e-6)
+        # (T, B, 1) layout must behave identically to (T, B)
+        out_sf3, _ = rnn_sf(input.transpose(0, 1), timespans=ts.transpose(0, 1).unsqueeze(-1))
+        assert torch.allclose(out_sf, out_sf3)
+
+
+def test_wired_cfc_batched_timespans():
+    input_size = 8
+    wiring = ncps.wirings.AutoNCP(28, 10)
+    rnn = CfC(input_size, wiring)
+    input = torch.randn(4, 6, input_size)
+    ts = torch.rand(4, 6)
+    output, hx = rnn(input, timespans=ts)
+    assert output.size() == (4, 6, 10)
+    assert hx.size() == (4, 28)
+
+
 if __name__ == "__main__":
     import traceback
     import warnings
